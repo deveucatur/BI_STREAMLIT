@@ -145,14 +145,21 @@ main p {
 .card h3 {
     margin: 0;
     font-size: 1.2em;
-    color: #5C6F7A; /* Azul Acinzentado */
+    color: #5C6F7A;
     font-weight: bold;
+    text-align: center;
+    line-height: 1.2; /* Ajusta o espaçamento entre as linhas */
+    height: 2.6em; /* Garante altura consistente para centralização */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .card h1 {
     font-size: 2.5em;
     font-weight: bold;
-    color: #333333; /* Cinza Escuro */
+    color: #333333;
+    text-align: center; /* Cinza Escuro */
 }
 
 .card:hover {
