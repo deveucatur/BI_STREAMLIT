@@ -559,7 +559,7 @@ if data is not None:
                     )
                     st.plotly_chart(fig_unidade, use_container_width=True)
                 with col2:
-                    st.markdown("<p style='color:#bb2e2eb7;font-size:17px;font-weight: bold;'>Irregularidades por Unidades", unsafe_allow_html=True)
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Unidades", unsafe_allow_html=True)
                     irregularidade_por_cidade_df = filtered_df.groupby(
                     ['unidade', 'irregularidade', 'gravidadeMaxima']
                     ).size().reset_index(name='Frequência')
