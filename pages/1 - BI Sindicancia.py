@@ -545,7 +545,7 @@ if data is not None:
                     # unidade_count.columns = ['Unidade', 'Total']
                     # fig_unidade = px.bar(unidade_count, x='Unidade', y='Total', title='Processos por Unidade', color='Total', color_continuous_scale='rainbow')
                     # st.plotly_chart(fig_unidade, use_container_width=True)
-                    st.markdown("<p style='color:#bb2e2eb7;font-size:17px;font-weight: bold;'>Processos por Unidade", unsafe_allow_html=True)
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Processos por Unidade", unsafe_allow_html=True)
                     unidade_count = filtered_df['unidade'].value_counts().reset_index()
                     unidade_count.columns = ['Unidade', 'Total']
                     fig_unidade = px.bar(
@@ -590,7 +590,7 @@ if data is not None:
                 # regiao_count.columns = ['Região', 'Total']
                 # fig_regiao = px.bar(regiao_count, x='Região', y='Total', title='Processos por Região', color='Total', color_continuous_scale='rainbow')
                 # st.plotly_chart(fig_regiao, use_container_width=True)
-                st.markdown("<p style='color:#bb2e2eb7;font-size:17px;font-weight: bold;'>Processos por região", unsafe_allow_html=True)
+                st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Processos por região", unsafe_allow_html=True)
                 regiao_count = filtered_df['regiaoUnidade'].value_counts().reset_index()
                 regiao_count.columns = ['Região', 'Total']
                 fig_regiao = px.bar(
@@ -603,7 +603,7 @@ if data is not None:
                 )
                 st.plotly_chart(fig_regiao, use_container_width=True)
             with col2:
-                    st.markdown("<p style='color:#bb2e2eb7;font-size:17px;font-weight: bold;'>Irregularidades por Região", unsafe_allow_html=True)
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Região", unsafe_allow_html=True)
                     irregularidade_por_cidade_df = filtered_df.groupby(
                     ['regiaoUnidade', 'irregularidade', 'gravidadeMaxima']
                     ).size().reset_index(name='Frequência')
@@ -834,7 +834,7 @@ if data is not None:
         }))
         # 7. Novo Painel para Visualização Detalhada de uma Sindicância
         st.markdown("---")
-        st.write(df)
+     
    
 
 #         # Impacto Financeiro ao longo do tempo aprimorado

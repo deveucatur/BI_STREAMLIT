@@ -114,6 +114,9 @@
     padding: 25px;
     background-color: #333333; /* Cinza Escuro */
 }
+[data-baseweb="tag"] {
+    background-color: #333333; /* Cinza Escuro */
+}
 
 /* Conteúdo de exemplo */
 main p {
