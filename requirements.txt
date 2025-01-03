@@ -1,0 +1,9 @@
+streamlit
+pandas
+plotly
+wordcloud
+matplotlib
+requests
+requests-oauthlib
+python-dotenv
+geopy
