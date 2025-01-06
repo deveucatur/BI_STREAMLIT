@@ -112,7 +112,8 @@ if data is not None:
         df['lead_time'] = ((df['endDate'].fillna(datetime.now()) - df['startDate']).dt.total_seconds() / 3600) / 24
 
         df['prejFinanc'] = df['prejFinanc'].str.replace(',', '')
-        # Tratar colunas específicas
+        df= df[df['unidade'].notna() & (df['unidade'] != '')]
+        
         df['prejFinanc'] = pd.to_numeric(df['prejFinanc'], errors='coerce')
       
        
@@ -251,7 +252,7 @@ if data is not None:
                  solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'].dropna().unique())
 
             #cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
-            unidade_filter = multiselect_with_all("Unidade", df['unidade'].dropna().unique())
+            unidade_filter = multiselect_with_all("Unidade", df['unidade'].unique())
             colsta6, colsta7,colsta8 = st.columns(3)
             with colsta6:
              medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'].dropna().unique())
