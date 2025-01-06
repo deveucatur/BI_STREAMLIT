@@ -107,10 +107,10 @@ if data is not None:
 
         # Calcular Lead Time
         df['lead_time'] = (df['endDate'] - df['startDate']).dt.days
-
+        df['prejFinanc'] = df['prejFinanc'].str.replace(',', '')
         # Tratar colunas específicas
         df['prejFinanc'] = pd.to_numeric(df['prejFinanc'], errors='coerce')
-
+       
              
 
         # Ajustar gravidade para três categorias: Leve, Moderada, Grave
@@ -247,7 +247,7 @@ if data is not None:
         status_aberto = filtered_df[filtered_df['status'] == 'Aberto'].shape[0]
         status_prazo = filtered_df[filtered_df['slaStatus'] == 'No Prazo'].shape[0]
         status_lead =   filtered_df['lead_time'].mean()
-        status_irregularidade = filtered_df
+        status_preju = soma_total = filtered_df['prejFinanc'].sum()
         with col1:
             st.markdown("""
             <div class="card">
@@ -281,10 +281,10 @@ if data is not None:
         with col5:
                 st.markdown("""
                     <div class="card">
-                        <h3>Processos Irregulares</h3>
-                        <h1>{:.2f}</h1>
+                        <h3>Prejuizo Total</h3>
+                        <h1>{:.0f}</h1>
                     </div>
-                """.format(status_lead ), unsafe_allow_html=True)     
+                """.format(status_preju), unsafe_allow_html=True)     
         with col6:
             st.markdown("""
                     <div class="card">
