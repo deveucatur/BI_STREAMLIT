@@ -201,28 +201,27 @@ main p {
 }
 
 .ranking-list {
-    font-weight: bold;
+    
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 300px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    overflow-x: hidden;
-    scrollbar-color: #5C6F7A #F7F7F7; 
-    font-weight: bold;/* Azul Acinzentado + Cinza Claro */
+    max-height: 400px; /* Altura máxima da lista */
+    overflow-y: auto; /* Scroll vertical */
+    overflow-x: hidden; /* Impede o scroll horizontal */
+    scrollbar-width: thin; /* Scrollbar mais fino (Firefox) */
+    scrollbar-color: rgba(92, 111, 122, 0.6) rgba(247, 247, 247, 0.8);
 }
 .ranking-list::-webkit-scrollbar {
-    width: 8px; /* Largura do scroll (Chrome, Safari) */
+    width: 6px; /* Largura do scroll (Chrome, Safari) */
 }
 
 .ranking-list::-webkit-scrollbar-thumb {
-    background-color: #5C6F7A; /* Cor do "polegar" do scroll */
-    border-radius: 8px; /* Bordas arredondadas */
+    background-color: rgba(92, 111, 122, 0.6); /* Azul acinzentado translúcido */
+    border-radius: 4px; /* Bordas arredondadas para um visual suave */
 }
 
 .ranking-list::-webkit-scrollbar-track {
-    background-color: #F7F7F7; /* Cor do trilho do scroll */
+    background-color: rgba(247, 247, 247, 0.8);
 }
 
 .ranking-item {
@@ -235,9 +234,8 @@ main p {
     transition: background-color 0.3s ease, transform 0.2s ease;
     font-size: 0.85em;
     font-weight: bold;
-    scrollbar-width: thin;
-    scrollbar-color: #5C6F7A #F7F7F7; 
-    overflow-y: auto;
+
+   
 }
 
 .ranking-item:hover {

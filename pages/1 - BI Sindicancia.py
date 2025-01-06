@@ -250,7 +250,7 @@ if data is not None:
             with colsta5: 
                  solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'].dropna().unique())
 
-            cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
+            #cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
             unidade_filter = multiselect_with_all("Unidade", df['unidade'].dropna().unique())
             colsta6, colsta7,colsta8 = st.columns(3)
             with colsta6:
@@ -277,7 +277,7 @@ if data is not None:
         filtered_df = df[
             (df['status'].isin(status_filter)) &
             (df['slaStatus'].isin(sla_filter)) &
-            (df['cidadeFato'].isin(cidade_filter)) &
+            #(df['cidadeFato'].isin(cidade_filter)) &
             (df['unidade'].isin(unidade_filter)) &
             (df['regiaoUnidade'].isin(regiao_filter)) &
             (df['mddCorretSelecionada'].isin(medida_filter)) &
@@ -419,7 +419,7 @@ if data is not None:
                     ranking = ranking.sort_values(by='num_sindicancias', ascending=False).reset_index(drop=True)
                     ranking['ranking'] = ranking.index + 1
 
-                    html_content = f"""
+                    html_content1 = f"""
                         <body>
                         <style>
                         {css_carregado}
@@ -431,16 +431,19 @@ if data is not None:
                                 <ul class="ranking-list">
                     """            
                     for  row in ranking.itertuples():
-                        html_content += f"""
+                        html_content1 += f"""
                             <li class="ranking-item">
                                 <span class="ranking-position">{row.ranking}º</span>
                                 <span class="city-name">{row.cidadeFato}</span>
                                 <span class="case-count">{row.num_sindicancias} sindicâncias</span>
                             </li> 
-                        </ul>
+                        """
+                    html_content1 += """
+                                </ul>
+                            </div>
                         </body>
                         """
-                    components.html(html_content, height=540)
+                    components.html(html_content1, height=540)
 
                 ####################  IRREGULARIDADES ##############################
                 tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
@@ -515,7 +518,7 @@ if data is not None:
                     ranking_cidades = ranking_cidades.sort_values(by='total_irregularidades', ascending=False).reset_index(drop=True)
                     ranking_cidades['ranking'] = ranking_cidades.index + 1
 
-                    html_content = f"""
+                    html_content1 = f"""
                         <body>
                         <style>
                         {css_carregado}
@@ -527,16 +530,19 @@ if data is not None:
                                 <ul class="ranking-list">
                     """            
                     for  row in ranking_cidades.itertuples():
-                        html_content += f"""
+                        html_content1 += f"""
                             <li class="ranking-item">
                                 <span class="ranking-position">{row.ranking}º</span>
                                 <span class="city-name">{row.tbIrregularidade___1}</span>
                                 <span class="case-count">{row.total_irregularidades} </span>
                             </li> 
-                        </ul>
+                        """
+                    html_content1 += """
+                                </ul>
+                            </div>
                         </body>
                         """
-                    components.html(html_content, height=570)
+                    components.html(html_content1, height=570)
                     st.markdown("")
 
                 tabela_medida ,colsp, grafico_medida= st.columns([1.9,0.5,4])
@@ -545,7 +551,7 @@ if data is not None:
                     ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
                     ranking_medidas['ranking'] = ranking_medidas.index + 1
 
-                    html_content = f"""
+                    html_content1 = f"""
                         <body>
                         <style>
                         {css_carregado}
@@ -557,16 +563,19 @@ if data is not None:
                                 <ul class="ranking-list">
                     """            
                     for  row in ranking_medidas.itertuples():
-                        html_content += f"""
+                        html_content1 += f"""
                             <li class="ranking-item">
                                 <span class="ranking-position">{row.ranking}º</span>
                                 <span class="city-name">{row.mddCorretSelecionada}</span>
                                 <span class="case-count">{row.total_medidas} Medidas</span>
                             </li> 
-                        </ul>
+                        """
+                    html_content1 += """
+                                </ul>
+                            </div>
                         </body>
                         """
-                    components.html(html_content, height=570)
+                    components.html(html_content1, height=570)
 
 
                 with grafico_medida:
@@ -671,10 +680,13 @@ if data is not None:
                                 <span class="city-name">{row.unidade}</span>
                                 <span class="case-count">{row.num_sindicancias} sindicâncias</span>
                             </li> 
-                        </ul>
+                        """
+                    html_content1 += """
+                                </ul>
+                            </div>
                         </body>
                         """
-                    components.html(html_content1, height=540)
+                    components.html(html_content1, height=570)
 
                 ####################  IRREGULARIDADES ##############################
                 tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
@@ -749,7 +761,7 @@ if data is not None:
                     ranking_cidades = ranking_cidades.sort_values(by='total_irregularidades', ascending=False).reset_index(drop=True)
                     ranking_cidades['ranking'] = ranking_cidades.index + 1
 
-                    html_content = f"""
+                    html_content1 = f"""
                         <body>
                         <style>
                         {css_carregado}
@@ -761,16 +773,19 @@ if data is not None:
                                 <ul class="ranking-list">
                     """            
                     for  row in ranking_cidades.itertuples():
-                        html_content += f"""
+                        html_content1 += f"""
                             <li class="ranking-item">
                                 <span class="ranking-position">{row.ranking}º</span>
                                 <span class="city-name">{row.tbIrregularidade___1}</span>
                                 <span class="case-count">{row.total_irregularidades} </span>
                             </li> 
-                        </ul>
+                        """
+                    html_content1 += """
+                                </ul>
+                            </div>
                         </body>
                         """
-                    components.html(html_content, height=570)
+                    components.html(html_content1, height=570)
                     st.markdown("")
 
                 tabela_medida ,colsp, grafico_medida= st.columns([1.9,0.5,4])
@@ -779,7 +794,7 @@ if data is not None:
                     ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
                     ranking_medidas['ranking'] = ranking_medidas.index + 1
 
-                    html_content = f"""
+                    html_content1 = f"""
                         <body>
                         <style>
                         {css_carregado}
@@ -791,16 +806,19 @@ if data is not None:
                                 <ul class="ranking-list">
                     """            
                     for  row in ranking_medidas.itertuples():
-                        html_content += f"""
+                        html_content1 += f"""
                             <li class="ranking-item">
                                 <span class="ranking-position">{row.ranking}º</span>
                                 <span class="city-name">{row.mddCorretSelecionada}</span>
                                 <span class="case-count">{row.total_medidas} Medidas</span>
                             </li> 
-                        </ul>
+                        """
+                    html_content1 += """
+                                </ul>
+                            </div>
                         </body>
                         """
-                    components.html(html_content, height=570)
+                    components.html(html_content1, height=570)
 
 
                 with grafico_medida:
