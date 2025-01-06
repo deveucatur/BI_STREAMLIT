@@ -2,7 +2,7 @@ import streamlit as st
 st.set_page_config(page_title="BI Sindicancia", 
                    layout="wide",
                     initial_sidebar_state="collapsed",
-                    page_icon="src\Logomarca ADP Vs2 (1).png"
+                    page_icon="https://raw.githubusercontent.com/deveucatur/BI_STREAMLIT/main/src/Logomarca%20ADP%20Vs2%20(1).png"
                    )
 
 import pandas as pd
