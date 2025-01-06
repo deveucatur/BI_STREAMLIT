@@ -16,7 +16,7 @@ def cabEscala():
     <div class="topo">
         <div class="logo">
             <img src="https://raw.githubusercontent.com/deveucatur/BI_STREAMLIT/main/src/Logomarca%20ADP%20Vs2.png" >
-            BI Sindicância
+            <span>BI Sindicância</span>
         </div>
     </div>
 """  

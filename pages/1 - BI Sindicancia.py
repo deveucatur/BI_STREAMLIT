@@ -1026,7 +1026,7 @@ if data is not None:
             <h3>Informações Gerais</h3>
             <p><strong>Data Início:</strong> {dados_processo['startDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['startDate']) else 'N/A'}</p>
             <p><strong>Data Fim:</strong> {dados_processo['endDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['endDate']) else 'N/A'}</p>
-            <p><strong>Lead Time:</strong> {dados_processo['lead_time']} dias</p>
+            <p><strong>Lead Time:</strong> {dados_processo['lead_time']:.3f} dias</p>
             <p><strong>Status:</strong> {dados_processo['status']}</p>
             <p><strong>Status SLA:</strong> {dados_processo['slaStatus']}</p>
             <p><strong>Unidade:</strong> {dados_processo['unidade']}</p>

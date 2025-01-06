@@ -91,19 +91,24 @@
     z-index: 1000000;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-transform: uppercase;
+
+.topo .logo {
+    position: absolute;
+    left: 0; /* Posiciona a logo à esquerda */
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: white;
 }
 
 .topo .logo img {
     height: 40px;
-    margin-right: 22px;
+    margin-left: 90px;
+}
+.topo .logo span {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    margin-left: 440px;
 }
 
 [data-testid="stSidebarCollapsedControl"] {
