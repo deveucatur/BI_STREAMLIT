@@ -9,7 +9,6 @@ import plotly.express as px
 from datetime import datetime
 import json
 from wordcloud import WordCloud, STOPWORDS
-import matplotlib.pyplot as plt
 import requests
 from requests_oauthlib import OAuth1
 import os
@@ -110,7 +109,7 @@ if data is not None:
         df['prejFinanc'] = df['prejFinanc'].str.replace(',', '')
         # Tratar colunas específicas
         df['prejFinanc'] = pd.to_numeric(df['prejFinanc'], errors='coerce')
-       
+ 
              
 
         # Ajustar gravidade para três categorias: Leve, Moderada, Grave
@@ -188,11 +187,37 @@ if data is not None:
 
         df['tbIrregularidade___1'] =  df['tbIrregularidade___1'].apply(padronizar_irregularidade)  
         df['mddCorretSelecionada'] =  df['mddCorretSelecionada'].apply(padronizar_suspensao)   
+        df = df.dropna(subset=['mddCorretSelecionada'])
+        df = df[df['mddCorretSelecionada'].str.strip() != '']
         
         # Traduzir e padronizar status e slaStatus
         df['status'] = df['status'].str.lower().map({'open': 'Aberto', 'finalized': 'Finalizado'})
-        df['slaStatus'] = df['slaStatus'].str.lower().map({'on_time': 'No Prazo', 'overdue': 'Em Atraso'})
-        
+        df['slaStatus'] = 'Em Atraso'
+
+        df.loc[
+            (df['tbIrregularidade___1'] == 'Indefinido/Outra') &
+            (df['gravidadeMaxima'].isin(['Leve', 'Moderada'])) &
+            (df['lead_time'] <= 3),
+            'slaStatus'
+        ] = 'No Prazo'
+        df.loc[
+            (df['gravidadeMaxima'] == 'Grave') &
+            (df['lead_time'] <= 10),
+            'slaStatus'
+        ] = 'No Prazo'
+
+        df.loc[
+            (df['tbIrregularidade___1'] != 'Indefinido/Outra') &
+            (df['gravidadeMaxima'].isin(['Leve', 'Moderada'])) &
+            (df['lead_time'] <= 1),
+            'slaStatus'
+        ] = 'No Prazo'
+        df.loc[
+            (df['gravidadeMaxima'] == 'Grave') &
+            (df['lead_time'] <= 5),
+            'slaStatus'
+        ] = 'No Prazo'
+            
         # 2. Filtros Interativos
         with st.expander("Filtros BI"):
             
@@ -240,14 +265,23 @@ if data is not None:
             #(df['nmInvestigado'].isin(investigado_filter)) &
             (df['solicitante'].isin(solicitante_filter))
         ]
-       
+
+
+
+
+
+
+
+
         col1, col2, col3, col4,col5,col6 = st.columns(6)
         total_processos = len(filtered_df)
         status_finalizado = filtered_df[filtered_df['status'] == 'Finalizado'].shape[0]
         status_aberto = filtered_df[filtered_df['status'] == 'Aberto'].shape[0]
-        status_prazo = filtered_df[filtered_df['slaStatus'] == 'No Prazo'].shape[0]
+        status_prazo = filtered_df[filtered_df['slaStatus'] == 'No Prazo' ].shape[0]
+        status_atraso = filtered_df[filtered_df['slaStatus'] == 'Em Atraso'].shape[0]
         status_lead =   filtered_df['lead_time'].mean()
-        status_preju = soma_total = filtered_df['prejFinanc'].sum()
+        status_preju = soma_total = filtered_df['prejFinanc'].sum() 
+        
         with col1:
             st.markdown("""
             <div class="card">
@@ -281,10 +315,10 @@ if data is not None:
         with col5:
                 st.markdown("""
                     <div class="card">
-                        <h3>Prejuizo Total</h3>
-                        <h1>{:.0f}</h1>
+                        <h3>Processos em Atraso</h3>
+                        <h1>{}</h1>
                     </div>
-                """.format(status_preju), unsafe_allow_html=True)     
+                """.format(status_atraso), unsafe_allow_html=True)     
         with col6:
             st.markdown("""
                     <div class="card">
@@ -329,34 +363,35 @@ if data is not None:
                     st.plotly_chart(fig_cidade, use_container_width=True)
                
                 with macroprocesso:
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Macroprocesso", unsafe_allow_html=True)
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Administrar</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(status_prazo ), unsafe_allow_html=True)
                     st.markdown("")
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Operar</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(status_prazo ), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Relacionamento Cargas</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(status_prazo ), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Relacionamento Pessoas</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(status_prazo ), unsafe_allow_html=True)
+                #     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Macroprocesso", unsafe_allow_html=True)
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Administrar</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
+                #     st.markdown("")
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Operar</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
+                #     st.markdown("")
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Relacionamento Cargas</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
+                #     st.markdown("")
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Relacionamento Pessoas</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
         
                 with tabela_cidades:
                     ranking = filtered_df.groupby('cidadeFato').size().reset_index(name='num_sindicancias')
@@ -514,16 +549,15 @@ if data is not None:
 
 
                 with grafico_medida:
-                    grouped_data = df.groupby(['cidadeFato', 'mddCorretSelecionada']).size().reset_index(name='Total')
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Nº de Medidas Disciplinares por Tipo e Cidade", unsafe_allow_html=True)
+                    grouped_data = filtered_df.groupby(['cidadeFato', 'mddCorretSelecionada']).size().reset_index(name='Total')
                     custom_greys = ['#2b2b2b', '#525252', '#7f7f7f', '#aaaaaa', '#d4d4d4']
                     # Criar gráfico de barras empilhadas na horizontal
                     fig = px.bar(
                         grouped_data,
-                        x='Total',
-                        y='cidadeFato',
+                        x='cidadeFato',
+                        y='Total',
                         color='mddCorretSelecionada',
-                        orientation='h',  # Horizontal
-                        title='Nº de Medidas Disciplinares por Tipo e Cidade',
                         labels={'cidadeFato': 'Cidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
                         text_auto=True,
                         color_discrete_sequence=custom_greys   # Paleta de cinza
@@ -539,50 +573,238 @@ if data is not None:
  
 
         with tabUnidades:
-                col1, col2 = st.columns(2)
-                with col1:
-                    # unidade_count = filtered_df['unidade'].value_counts().reset_index()
-                    # unidade_count.columns = ['Unidade', 'Total']
-                    # fig_unidade = px.bar(unidade_count, x='Unidade', y='Total', title='Processos por Unidade', color='Total', color_continuous_scale='rainbow')
-                    # st.plotly_chart(fig_unidade, use_container_width=True)
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Processos por Unidade", unsafe_allow_html=True)
+                 ####################  UNIDADES ##############################
+               
+                grafico_Unidades, macroprocesso, tabela_Unidades = st.columns([2.1,0.8,1.6])
+                with grafico_Unidades:
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Sindicâncias por Unidade", unsafe_allow_html=True)
                     unidade_count = filtered_df['unidade'].value_counts().reset_index()
                     unidade_count.columns = ['Unidade', 'Total']
+
                     fig_unidade = px.bar(
                         unidade_count,
                         x='Total',  # Total no eixo horizontal
                         y='Unidade',  # Unidade no eixo vertical
-                    
                         color='Total',  # Colorir as barras pelo total
-                        color_continuous_scale='rainbow',  # Escala de cores
+                        color_continuous_scale=[[0, '#5C6F7A'], [1, '#333333']],  # Escala de cores
                         orientation='h'  # Orientação horizontal
                     )
+                    fig_unidade.update_layout(
+                        height=540  # Aumenta a altura do gráfico em pixels
+                    )
+
+                    # Exibir no Streamlit
                     st.plotly_chart(fig_unidade, use_container_width=True)
-                with col2:
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Unidades", unsafe_allow_html=True)
-                    irregularidade_por_cidade_df = filtered_df.groupby(
+               
+                with macroprocesso:
+                    st.markdown("")
+                #     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Macroprocesso", unsafe_allow_html=True)
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Administrar</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
+                #     st.markdown("")
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Operar</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
+                #     st.markdown("")
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Relacionamento Cargas</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
+                #     st.markdown("")
+                #     st.markdown("""
+                #     <div class="metric">
+                #         <h3>Relacionamento Pessoas</h3>
+                #         <h1>{}</h1>
+                #     </div>
+                # """.format(status_prazo ), unsafe_allow_html=True)
+        
+                with tabela_Unidades:
+                    rankingUni = filtered_df.groupby('unidade').size().reset_index(name='num_sindicancias')
+                    rankingUni =  rankingUni.sort_values(by='num_sindicancias', ascending=False).reset_index(drop=True)
+                    rankingUni ['ranking'] = rankingUni.index + 1
+
+                    html_content1 = f"""
+                        <body>
+                        <style>
+                        {css_carregado}
+                        </style>
+                            <div class="ranking-container">
+                                <div class="ranking-header">
+                                    Ranking de Unidades
+                                </div>
+                                <ul class="ranking-list">
+                    """            
+                    for  row in rankingUni.itertuples():
+                        html_content1 += f"""
+                            <li class="ranking-item">
+                                <span class="ranking-position">{row.ranking}º</span>
+                                <span class="city-name">{row.unidade}</span>
+                                <span class="case-count">{row.num_sindicancias} sindicâncias</span>
+                            </li> 
+                        </ul>
+                        </body>
+                        """
+                    components.html(html_content1, height=540)
+
+                ####################  IRREGULARIDADES ##############################
+                tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
+                with tabela_irregula:    
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Unidade", unsafe_allow_html=True)
+                    irregularidade_por_unidade_df = filtered_df.groupby(
                     ['unidade', 'irregularidade', 'gravidadeMaxima']
                     ).size().reset_index(name='Frequência')
 
                     # Criar o gráfico de barras horizontais
-                    fig_irregularidade_barras_horizontais = px.bar(
-                        irregularidade_por_cidade_df,
+                    fig_irregularidade_barras_horizontais_Uni = px.bar(
+                       irregularidade_por_unidade_df,
                         x='Frequência',  # Eixo X exibe a frequência
                         y='unidade',  # Eixo Y exibe as cidades (cidadeFato)
                         color='gravidadeMaxima',  # Diferencia por gravidade máxima
                         orientation='h',  # Orientação horizontal
                         text='irregularidade',  # Exibe irregularidade como rótulo
-                        color_discrete_sequence=px.colors.sequential.RdBu  # Paleta de cores
+                        color_discrete_sequence=['#5C6F7A', '#7B8C96', '#9CA5AE', '#BFC0C2', '#333333']   # Paleta de cores
                     )
-                    fig_irregularidade_barras_horizontais.update_layout(
+
+                    # Configurar o layout do gráfico
+                    fig_irregularidade_barras_horizontais_Uni.update_layout(
                        
                         xaxis_title='Total',
                         yaxis_title='Unidade',
                         legend_title='Gravidade Máxima',
-                        yaxis={'categoryorder': 'total ascending'}  # Ordenação opcional por frequência
+                        yaxis={'categoryorder': 'total ascending'} ,
+                        height=540  # Ordenação opcional por frequência
                     )
-                    st.plotly_chart(fig_irregularidade_barras_horizontais, use_container_width=True)
-                         
+                   
+                    # Exibir o gráfico na aplicação Streamlit
+                    st.plotly_chart(fig_irregularidade_barras_horizontais_Uni, use_container_width=True)
+
+
+                with gravidade:
+                    gravidade_total = len(filtered_df['gravidadeMaxima'])
+                    gravidade_grave = filtered_df[filtered_df['gravidadeMaxima'] == 'Grave'].shape[0]
+                    gravidade_mediana = filtered_df[filtered_df['gravidadeMaxima'] == 'Moderada'].shape[0]
+                    gravidade_leve = filtered_df[filtered_df['gravidadeMaxima'] == 'Leve'].shape[0]
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Gravidade", unsafe_allow_html=True)
+                    st.markdown("""
+                    <div class="metric">
+                        <h3>Total</h3>
+                        <h1>{}</h1>
+                    </div>
+                """.format(gravidade_total ), unsafe_allow_html=True)
+                    st.markdown("")
+                    st.markdown("""
+                    <div class="metric">
+                        <h3>Grave</h3>
+                        <h1>{}</h1>
+                    </div>
+                """.format(gravidade_grave), unsafe_allow_html=True)
+                    st.markdown("")
+                    st.markdown("""
+                    <div class="metric">
+                        <h3>Mediana</h3>
+                        <h1>{}</h1>
+                    </div>
+                """.format(gravidade_mediana), unsafe_allow_html=True)
+                    st.markdown("")
+                    st.markdown("""
+                    <div class="metric">
+                        <h3>Leve</h3>
+                        <h1>{}</h1>
+                    </div>
+                """.format(gravidade_leve), unsafe_allow_html=True)
+                          
+                with grafico_irregula:   
+
+                    ranking_cidades = (filtered_df.groupby('tbIrregularidade___1')['gravidadeMaxima'].size().reset_index(name='total_irregularidades'))
+                    ranking_cidades = ranking_cidades.sort_values(by='total_irregularidades', ascending=False).reset_index(drop=True)
+                    ranking_cidades['ranking'] = ranking_cidades.index + 1
+
+                    html_content = f"""
+                        <body>
+                        <style>
+                        {css_carregado}
+                        </style>
+                            <div class="ranking-container">
+                                <div class="ranking-header">
+                                    Ranking de Irregularidades
+                                </div>
+                                <ul class="ranking-list">
+                    """            
+                    for  row in ranking_cidades.itertuples():
+                        html_content += f"""
+                            <li class="ranking-item">
+                                <span class="ranking-position">{row.ranking}º</span>
+                                <span class="city-name">{row.tbIrregularidade___1}</span>
+                                <span class="case-count">{row.total_irregularidades} </span>
+                            </li> 
+                        </ul>
+                        </body>
+                        """
+                    components.html(html_content, height=570)
+                    st.markdown("")
+
+                tabela_medida ,colsp, grafico_medida= st.columns([1.9,0.5,4])
+                with tabela_medida:
+                    ranking_medidas = (filtered_df.groupby('mddCorretSelecionada')['gravidadeMaxima'].size().reset_index(name='total_medidas'))
+                    ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
+                    ranking_medidas['ranking'] = ranking_medidas.index + 1
+
+                    html_content = f"""
+                        <body>
+                        <style>
+                        {css_carregado}
+                        </style>
+                            <div class="ranking-container">
+                                <div class="ranking-header">
+                                    Ranking de Medidas
+                                </div>
+                                <ul class="ranking-list">
+                    """            
+                    for  row in ranking_medidas.itertuples():
+                        html_content += f"""
+                            <li class="ranking-item">
+                                <span class="ranking-position">{row.ranking}º</span>
+                                <span class="city-name">{row.mddCorretSelecionada}</span>
+                                <span class="case-count">{row.total_medidas} Medidas</span>
+                            </li> 
+                        </ul>
+                        </body>
+                        """
+                    components.html(html_content, height=570)
+
+
+                with grafico_medida:
+                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Nº de Medidas Disciplinares por Tipo e Unidade", unsafe_allow_html=True)
+                    grouped_data = filtered_df.groupby(['unidade', 'mddCorretSelecionada']).size().reset_index(name='Total')
+                    custom_greys = ['#2b2b2b', '#525252', '#7f7f7f', '#aaaaaa', '#d4d4d4']
+                    # Criar gráfico de barras empilhadas na horizontal
+                    fig = px.bar(
+                        grouped_data,
+                        x='unidade',
+                        y='Total',
+                        color='mddCorretSelecionada',
+                        labels={'unidade': 'Unidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
+                        text_auto=True,
+                        color_discrete_sequence=custom_greys   # Paleta de cinza
+                    )
+
+                    # Ajustar altura do gráfico
+                    fig.update_layout(
+                        height=550  # Define a altura do gráfico
+                    )
+
+                    # Exibir gráfico no Streamlit
+                    st.plotly_chart(fig, use_container_width=True)
+ 
         with tabRegioes:
             col1, col2 = st.columns(2)
             with col1:
@@ -792,7 +1014,7 @@ if data is not None:
         </div>
         <div class="box">
             <h3>Detalhes do Caso</h3>
-            <p><strong>Irregularidade:</strong> {dados_processo['irregularidade']}</p>
+            <p><strong>Irregularidade:</strong> {dados_processo['tbIrregularidade___1']}</p>
             <p><strong>Gravidade:</strong> {dados_processo['gravidadeMaxima']}</p>
             <p><strong>Investigado:</strong> {dados_processo['nmInvestigado']}</p>
             <p><strong>Solicitante:</strong> {dados_processo['solicitante']}</p>
@@ -818,7 +1040,7 @@ if data is not None:
 
         st.subheader("Detalhamento das Sindicâncias")
         # Selecionar colunas relevantes
-        cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'cidadeFato', 'unidade', 'regiaoUnidade', 'irregularidade', 'gravidadeMaxima', 'nmInvestigado', 'solicitante', 'conclusao', 'prejFinanc']
+        cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'cidadeFato', 'unidade', 'regiaoUnidade', 'tbIrregularidade___1', 'gravidadeMaxima', 'nmInvestigado', 'solicitante', 'conclusao', 'prejFinanc']
         tabela_sindicancias = filtered_df[cols_relevantes].copy()
         tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Lead Time', 'Status', 'Status SLA', 'Cidade', 'Unidade', 'Região', 'Irregularidade', 'Gravidade', 'Investigado', 'Solicitante', 'Conclusão', 'Prejuízo Financeiro']
 
