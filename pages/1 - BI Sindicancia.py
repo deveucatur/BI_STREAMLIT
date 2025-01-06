@@ -1,7 +1,8 @@
 import streamlit as st
 st.set_page_config(page_title="BI Sindicancia", 
                    layout="wide",
-                    initial_sidebar_state="collapsed"
+                    initial_sidebar_state="collapsed",
+                    page_icon="src\Logomarca ADP Vs2 (1).png"
                    )
 
 import pandas as pd
@@ -103,13 +104,18 @@ if data is not None:
         # Converter colunas de datas para datetime
         df['startDate'] = pd.to_datetime(df['startDate'], errors='coerce')
         df['endDate'] = pd.to_datetime(df['endDate'], errors='coerce')
-
+        df['startDate'] = df['startDate'].dt.tz_localize(None)
+        df['endDate'] = df['endDate'].dt.tz_localize(None)
+        st.write(df)
         # Calcular Lead Time
-        df['lead_time'] = (df['endDate'] - df['startDate']).dt.days
+        #df_filtrado = df['lead_time'] = (df['endDate'] - df['startDate']).dt.days
+        df['lead_time'] = ((df['endDate'].fillna(datetime.now()) - df['startDate']).dt.total_seconds() / 3600) / 24
+
         df['prejFinanc'] = df['prejFinanc'].str.replace(',', '')
         # Tratar colunas específicas
         df['prejFinanc'] = pd.to_numeric(df['prejFinanc'], errors='coerce')
- 
+        st.write( df['lead_time'] )
+       
              
 
         # Ajustar gravidade para três categorias: Leve, Moderada, Grave
@@ -246,11 +252,26 @@ if data is not None:
 
             cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
             unidade_filter = multiselect_with_all("Unidade", df['unidade'].dropna().unique())
-            medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'].dropna().unique())
+            colsta6, colsta7,colsta8 = st.columns(3)
+            with colsta6:
+             medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'].dropna().unique())
+            with colsta7:
+                start_date_default  = df['startDate'].min().date() 
+                end_date_default = datetime.today().date()    
+                      
+                start_date = st.date_input("Data Inicial", start_date_default)           
+            with colsta8:
+               
+                end_date = st.date_input("Data Final",end_date_default)
+                 
             #irregularidade_filter = multiselect_with_all("Irregularidade", df['irregularidade'].dropna().unique())
             
-            #investigado_filter = multiselect_with_all("Investigado", df['nmInvestigado'].dropna().unique())
-           
+            #investigado_filter = multiselect_with_all("Investigado", df['nmInvestigado'].dropna().unique()) 
+        start_date = df['startDate'].min().date() 
+        #end_date = datetime.today().date()
+        df = df[(df['startDate'] >= pd.Timestamp(start_date)) & ((df['endDate'].isna()) |  (df['endDate'] <= pd.Timestamp(end_date)))]
+        
+        
 
         # Aplicar filtros
         filtered_df = df[
@@ -332,7 +353,7 @@ if data is not None:
         
         
  
-        tabCidades, tabUnidades, tabRegioes = st.tabs(["Cidades", "Unidades", "Regiões"])
+        tabUnidades, tabCidades,tabRegioes = st.tabs(["Unidades","Cidades", "Regiões"])
 
         with tabCidades:
                 # cidade_count = filtered_df['cidadeFato'].value_counts().reset_index()
@@ -1018,7 +1039,7 @@ if data is not None:
             <p><strong>Gravidade:</strong> {dados_processo['gravidadeMaxima']}</p>
             <p><strong>Investigado:</strong> {dados_processo['nmInvestigado']}</p>
             <p><strong>Solicitante:</strong> {dados_processo['solicitante']}</p>
-            <p><strong>Prejuízo Financeiro:</strong> R${dados_processo['prejFinanc']:.2f} if pd.notnull(dados_processo['prejFinanc']) else "N/A"</p>
+            <p><strong>Prejuízo Financeiro:</strong> R${dados_processo['prejFinanc']:.2f} </p>
             <p><strong>Descrição do Fato:</strong> {dados_processo['descFato']}</p>
         </div>
     </div>

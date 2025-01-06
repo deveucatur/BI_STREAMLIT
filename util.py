@@ -15,7 +15,7 @@ def cabEscala():
     st.markdown(""" 
     <div class="topo">
         <div class="logo">
-            <img>
+            <img src="src\Logomarca ADP Vs2 (1).png" >
             BI Sindicância
         </div>
     </div>
