@@ -106,7 +106,7 @@ if data is not None:
         df['endDate'] = pd.to_datetime(df['endDate'], errors='coerce')
         df['startDate'] = df['startDate'].dt.tz_localize(None)
         df['endDate'] = df['endDate'].dt.tz_localize(None)
-        st.write(df)
+       
         # Calcular Lead Time
         #df_filtrado = df['lead_time'] = (df['endDate'] - df['startDate']).dt.days
         df['lead_time'] = ((df['endDate'].fillna(datetime.now()) - df['startDate']).dt.total_seconds() / 3600) / 24
@@ -114,7 +114,7 @@ if data is not None:
         df['prejFinanc'] = df['prejFinanc'].str.replace(',', '')
         # Tratar colunas específicas
         df['prejFinanc'] = pd.to_numeric(df['prejFinanc'], errors='coerce')
-        st.write( df['lead_time'] )
+      
        
              
 
