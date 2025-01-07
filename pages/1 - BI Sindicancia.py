@@ -1176,58 +1176,8 @@ if data is not None:
             'Prejuízo Financeiro': 'R${:,.2f}'
         }))
         # 7. Novo Painel para Visualização Detalhada de uma Sindicância
-        st.markdown("---")
-    from geopy.geocoders import Nominatim
-    geolocator = Nominatim(user_agent="my_app")
-
-    # Criar um cache para coordenadas para evitar múltiplas chamadas
-    @st.cache_data()
-    def get_city_coordinates(cities):
-        coordinates = {}
-        for city in cities:
-            try:
-                location = geolocator.geocode(city + ", Brasil", timeout=10)
-                if location:
-                    coordinates[city] = {'latitude': location.latitude, 'longitude': location.longitude}
-                else:
-                    coordinates[city] = {'latitude': None, 'longitude': None}
-            except:
-                coordinates[city] = {'latitude': None, 'longitude': None}
-        return coordinates
-
-    city_counts = filtered_df['cidadeFato'].value_counts().reset_index()
-    city_counts.columns = ['Cidade', 'Total']
-
-    city_coords = get_city_coordinates(city_counts['Cidade'])
-
-    city_counts['latitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['latitude'])
-    city_counts['longitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['longitude'])
-
-    # Remover cidades sem coordenadas
-    city_counts = city_counts.dropna(subset=['latitude', 'longitude'])
-    center_lat = city_counts['latitude'].mean()
-    center_lon = city_counts['longitude'].mean()
-
-    # Ajustar o zoom (pode ser ajustado conforme necessário)
-    zoom_level = 4
-
-    # Criar o mapa focado nas ocorrências
-    fig_map = px.scatter_mapbox(
-        city_counts,
-        lat='latitude',
-        lon='longitude',
-        size='Total',
-        hover_name='Cidade',
-        color='Total',
-        zoom=zoom_level,
-        mapbox_style='open-street-map',
-        title='Sindicâncias por Cidade',
-        center={"lat": center_lat, "lon": center_lon}
-    )
-
-    # Mostrar o mapa no Streamlit
-    st.plotly_chart(fig_map, use_container_width=True)
-     
+ 
+  
    
 
 #         # Impacto Financeiro ao longo do tempo aprimorado
