@@ -33,7 +33,7 @@
 
 /* Estilos para os metrics iniciais */
 .metric {
-    background: linear-gradient(145deg, #5C6F7A, #333333); /* Azul Acinzentado + Cinza Escuro */
+    background: linear-gradient(145deg, #05AFF2, #62cbf5);
     color: white;
     padding: 25px;
     border-radius: 12px;
@@ -65,6 +65,35 @@
     transform: translateY(-10px);
     box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2), -10px -10px 20px rgba(255, 255, 255, 0.3);
 }
+.metric-pink {
+    background: linear-gradient(145deg, #F22771, #eb8aad);
+    color: white;
+} 
+.metric-pink .metric:hover{
+    transform: translateY(-10px);
+    box-shadow: 10px 10px 20px rgba(219, 7, 138, 0.801), -10px -10px 20px rgba(238, 8, 123, 0.815);
+}
+.metric-orange {
+    background: linear-gradient(145deg, #F29422, #f5b15e);
+    color: white;
+} 
+.metric-green {
+    background: linear-gradient(145deg, #19eb4e, #4be671);
+    color: white;
+} 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .main-title {
     text-align: center;
@@ -74,6 +103,17 @@
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 /* Div fixo no topo */
 .topo {
@@ -108,7 +148,7 @@
     font-weight: bold;
     color: white;
     text-transform: uppercase;
-    margin-left: 440px;
+    margin-left: 450px;
 }
 
 [data-testid="stSidebarCollapsedControl"] {
@@ -169,12 +209,19 @@ main p {
 
 .card:hover {
     transform: translateY(-10px);
-    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2), -10px -10px 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 10px 10px 20px rgba(255, 0, 0, 0.2), -10px -10px 20px rgba(255, 255, 255, 0.3);
 }
+
+
+
+
+
+
+
 
 /* Estilos Ranking */
 .ranking-container {
-    max-width: 600px;
+    max-width: 900px;
     margin: 10px auto;
     background: linear-gradient(145deg, #F7F7F7, #FFFFFF); /* Cinza Claro + Branco */
     border-radius: 12px;
@@ -190,7 +237,7 @@ main p {
 }
 
 .ranking-header {
-    background: linear-gradient(145deg, #5C6F7A, #333333); /* Azul Acinzentado + Cinza Escuro */
+    background: linear-gradient(200deg,#F29422,#F24B4B); /* Azul Acinzentado + Cinza Escuro */
     color: white;
     text-align: center;
     padding: 15px;
@@ -200,19 +247,18 @@ main p {
     font-weight: bold;
 }
 
-.ranking-list {
-    
+.ranking-container .ranking-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 400px; /* Altura máxima da lista */
+    max-height: 700px; /* Altura máxima da lista */
     overflow-y: auto; /* Scroll vertical */
     overflow-x: hidden; /* Impede o scroll horizontal */
     scrollbar-width: thin; /* Scrollbar mais fino (Firefox) */
     scrollbar-color: rgba(92, 111, 122, 0.6) rgba(247, 247, 247, 0.8);
 }
 .ranking-list::-webkit-scrollbar {
-    width: 6px; /* Largura do scroll (Chrome, Safari) */
+    width: 8px; /* Largura do scroll (Chrome, Safari) */
 }
 
 .ranking-list::-webkit-scrollbar-thumb {
@@ -239,11 +285,28 @@ main p {
 }
 
 .ranking-item:hover {
-    background: linear-gradient(145deg, #E5E5E5, #C7A85E); /* Branco Suave + Dourado */
+    background: linear-gradient(145deg,#F29422,#F24B4B); /* Branco Suave + Dourado */
     transform: translateX(5px);
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
     font-weight: bold;
 }
+
+.ranking-green .ranking-header{
+      background: linear-gradient(145deg, #2BD957, #05AFF2);
+}
+
+.ranking-green .ranking-item:hover{
+    background: linear-gradient(145deg, #2BD957, #05AFF2);
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -283,4 +346,40 @@ main p {
 .conclusao h4 {
     color: #222;
     margin-bottom: 10px;
+}
+
+
+
+
+.section-divider {
+    background: linear-gradient(135deg,#2BD957,#05AFF2,#F29422,#F24B4B,#F22771); /* Gradiente moderno */
+    color: #FFFFFF; /* Texto branco para contraste */
+    padding: 1px 20px;
+    border-radius: 16px;
+    margin: 30px 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+}
+
+
+.section-divider::before {
+    left: 0;
+}
+
+.section-divider::after {
+    right: 0;
+}
+
+.section-divider span {
+
+    background: none; /* Sem traço interno */
+    color: #FFFFFF; /* Texto limpo no gradiente */
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none; 
+    font-weight: bold;
 }

@@ -16,6 +16,7 @@ import os
 from dotenv import load_dotenv 
 from util import cabEscala, sideBar
 import streamlit.components.v1 as components
+import matplotlib.pyplot as plt
 
 
 
@@ -268,7 +269,7 @@ if data is not None:
             #irregularidade_filter = multiselect_with_all("Irregularidade", df['irregularidade'].dropna().unique())
             
             #investigado_filter = multiselect_with_all("Investigado", df['nmInvestigado'].dropna().unique()) 
-        start_date = df['startDate'].min().date() 
+        
         #end_date = datetime.today().date()
         df = df[(df['startDate'] >= pd.Timestamp(start_date)) & ((df['endDate'].isna()) |  (df['endDate'] <= pd.Timestamp(end_date)))]
         
@@ -349,7 +350,8 @@ if data is not None:
                     </div>
                 """.format(status_lead ), unsafe_allow_html=True)     
         # Gráficos organizados
-        st.markdown("")
+        
+       
          # Gráficos adicionais
         
         
@@ -357,14 +359,11 @@ if data is not None:
         tabUnidades, tabCidades,tabRegioes = st.tabs(["Unidades","Cidades", "Regiões"])
 
         with tabCidades:
-                # cidade_count = filtered_df['cidadeFato'].value_counts().reset_index()
-                # cidade_count.columns = ['Cidade', 'Total']
-                # fig_cidade = px.bar(cidade_count, x='Cidade', y='Total', title='Processos por Cidade', color='Total', color_continuous_scale='rainbow')
-                # st.plotly_chart(fig_cidade, use_container_width=True)
-
+                
                ####################  CIDADES ##############################
                 grafico_cidade, macroprocesso, tabela_cidades = st.columns([2.1,0.8,1.6])
                 with grafico_cidade:
+                    
                     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Sindicâncias por Cidade", unsafe_allow_html=True)
                     cidade_count = filtered_df['cidadeFato'].value_counts().reset_index()
                     cidade_count.columns = ['Cidade', 'Total']
@@ -374,7 +373,7 @@ if data is not None:
                         x='Total',  # Total no eixo horizontal
                         y='Cidade',  # Cidade no eixo vertical
                         color='Total',  # Colorir as barras pelo total
-                        color_continuous_scale=[[0, '#5C6F7A'], [1, '#333333']],  # Escala de cores
+                        color_continuous_scale=[[0, '#05AFF2'], [1, '#2BD957']],  # Escala de cores
                         orientation='h'  # Orientação horizontal
                     )
                     fig_cidade.update_layout(
@@ -605,9 +604,14 @@ if data is not None:
 
         with tabUnidades:
                  ####################  UNIDADES ##############################
-               
-                grafico_Unidades, macroprocesso, tabela_Unidades = st.columns([2.1,0.8,1.6])
+                st.markdown("""
+                    <div class="section-divider">
+                        <span> Sindicâncias</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                grafico_Unidades, mapa, tabela_Unidades = st.columns([2,0.05,1.2])
                 with grafico_Unidades:
+                    
                     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Sindicâncias por Unidade", unsafe_allow_html=True)
                     unidade_count = filtered_df['unidade'].value_counts().reset_index()
                     unidade_count.columns = ['Unidade', 'Total']
@@ -617,7 +621,7 @@ if data is not None:
                         x='Total',  # Total no eixo horizontal
                         y='Unidade',  # Unidade no eixo vertical
                         color='Total',  # Colorir as barras pelo total
-                        color_continuous_scale=[[0, '#5C6F7A'], [1, '#333333']],  # Escala de cores
+                        color_continuous_scale=[[0, '#05AFF2'], [1, '#2BD957']],  # Escala de cores
                         orientation='h'  # Orientação horizontal
                     )
                     fig_unidade.update_layout(
@@ -627,36 +631,60 @@ if data is not None:
                     # Exibir no Streamlit
                     st.plotly_chart(fig_unidade, use_container_width=True)
                
-                with macroprocesso:
-                    st.markdown("")
-                #     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Macroprocesso", unsafe_allow_html=True)
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Administrar</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
-                #     st.markdown("")
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Operar</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
-                #     st.markdown("")
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Relacionamento Cargas</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
-                #     st.markdown("")
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Relacionamento Pessoas</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
+                with mapa:
+                    st.write("")
+                    # from geopy.geocoders import Nominatim
+                    # geolocator = Nominatim(user_agent="my_app")
+
+                    # # Criar um cache para coordenadas para evitar múltiplas chamadas
+                    # @st.cache_data()
+                    # def get_city_coordinates(cities):
+                    #     coordinates = {}
+                    #     for city in cities:
+                    #         try:
+                    #             location = geolocator.geocode(city + ", Brasil", timeout=10)
+                    #             if location:
+                    #                 coordinates[city] = {'latitude': location.latitude, 'longitude': location.longitude}
+                    #             else:
+                    #                 coordinates[city] = {'latitude': None, 'longitude': None}
+                    #         except:
+                    #             coordinates[city] = {'latitude': None, 'longitude': None}
+                    #     return coordinates
+
+                    # city_counts = filtered_df['cidadeFato'].value_counts().reset_index()
+                    # city_counts.columns = ['Cidade', 'Total']
+
+                    # city_coords = get_city_coordinates(city_counts['Cidade'])
+
+                    # city_counts['latitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['latitude'])
+                    # city_counts['longitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['longitude'])
+
+                    # # Remover cidades sem coordenadas
+                    # city_counts = city_counts.dropna(subset=['latitude', 'longitude'])
+                    # center_lat = city_counts['latitude'].mean()
+                    # center_lon = city_counts['longitude'].mean()
+
+                    # # Ajustar o zoom (pode ser ajustado conforme necessário)
+                    # zoom_level = 4
+
+                    # # Criar o mapa focado nas ocorrências
+                    # fig_map = px.scatter_mapbox(
+                    #     city_counts,
+                    #     lat='latitude',
+                    #     lon='longitude',
+                    #     size='Total',
+                    #     hover_name='Cidade',
+                    #     color='Total',
+                    #     zoom=zoom_level,
+                    #     mapbox_style='open-street-map',
+                    #     title='Sindicâncias por Cidade',
+                    #     center={"lat": center_lat, "lon": center_lon}
+                    # )
+
+                    # # Mostrar o mapa no Streamlit
+                    # st.plotly_chart(fig_map, use_container_width=True)
+
+
         
                 with tabela_Unidades:
                     rankingUni = filtered_df.groupby('unidade').size().reset_index(name='num_sindicancias')
@@ -668,7 +696,7 @@ if data is not None:
                         <style>
                         {css_carregado}
                         </style>
-                            <div class="ranking-container">
+                            <div class="ranking-container ranking-green">
                                 <div class="ranking-header">
                                     Ranking de Unidades
                                 </div>
@@ -679,7 +707,7 @@ if data is not None:
                             <li class="ranking-item">
                                 <span class="ranking-position">{row.ranking}º</span>
                                 <span class="city-name">{row.unidade}</span>
-                                <span class="case-count">{row.num_sindicancias} sindicâncias</span>
+                                <span class="case-count">{row.num_sindicancias}</span>
                             </li> 
                         """
                     html_content1 += """
@@ -688,9 +716,14 @@ if data is not None:
                         </body>
                         """
                     components.html(html_content1, height=570)
-
-                ####################  IRREGULARIDADES ##############################
+                   
+                st.markdown("""
+                    <div class="section-divider">
+                        <span>Gravidade e Irregularidades</span>
+                    </div>
+                    """,unsafe_allow_html=True)
                 tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
+              
                 with tabela_irregula:    
                     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Unidade", unsafe_allow_html=True)
                     irregularidade_por_unidade_df = filtered_df.groupby(
@@ -705,7 +738,7 @@ if data is not None:
                         color='gravidadeMaxima',  # Diferencia por gravidade máxima
                         orientation='h',  # Orientação horizontal
                         text='irregularidade',  # Exibe irregularidade como rótulo
-                        color_discrete_sequence=['#5C6F7A', '#7B8C96', '#9CA5AE', '#BFC0C2', '#333333']   # Paleta de cores
+                        color_discrete_sequence=['#F22771', '#2BD957', '#F29422']   # Paleta de cores
                     )
 
                     # Configurar o layout do gráfico
@@ -736,21 +769,21 @@ if data is not None:
                 """.format(gravidade_total ), unsafe_allow_html=True)
                     st.markdown("")
                     st.markdown("""
-                    <div class="metric">
+                    <div class="metric metric-pink">
                         <h3>Grave</h3>
                         <h1>{}</h1>
                     </div>
                 """.format(gravidade_grave), unsafe_allow_html=True)
                     st.markdown("")
                     st.markdown("""
-                    <div class="metric">
+                    <div class="metric metric-orange">
                         <h3>Mediana</h3>
                         <h1>{}</h1>
                     </div>
                 """.format(gravidade_mediana), unsafe_allow_html=True)
                     st.markdown("")
                     st.markdown("""
-                    <div class="metric">
+                    <div class="metric metric-green">
                         <h3>Leve</h3>
                         <h1>{}</h1>
                     </div>
@@ -784,13 +817,43 @@ if data is not None:
                     html_content1 += """
                                 </ul>
                             </div>
-                        </body>
+                        </body>r
                         """
-                    components.html(html_content1, height=570)
-                    st.markdown("")
-
-                tabela_medida ,colsp, grafico_medida= st.columns([1.9,0.5,4])
+                    components.html(html_content1, height=600)
+                   
+                tabela_lead,space,tabela_medida= st.columns([2.3,0.2,2.7])
+                
                 with tabela_medida:
+                    st.markdown("""
+                    <div class="section-divider">
+                        <span>Medidas Corretivas</span>
+                    </div>
+                    """,unsafe_allow_html=True)
+                    ############################### GRAFICO MEDIDA #####################################
+                    grouped_data = filtered_df.groupby(['unidade', 'mddCorretSelecionada']).size().reset_index(name='Total')
+                    custom_greys = ['#F22771', '#05AFF2', '#2BD957', '#F29422', '#F24B4B']
+                    # Criar gráfico de barras empilhadas na horizontal
+                    fig = px.bar(
+                        grouped_data,
+                        x='unidade',
+                        y='Total',
+                        title='Medidas corretivas por Unidade',
+                        color='mddCorretSelecionada',
+                        labels={'unidade': 'Unidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
+                        text_auto=True,
+                        color_discrete_sequence=custom_greys   # Paleta de cinza
+                    )
+
+                    # Ajustar altura do gráfico
+                    fig.update_layout(
+                        height=500  # Define a altura do gráfico
+                    )
+
+                    # Exibir gráfico no Streamlit
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    ############################### TABELA  MEDIDA #####################################
+
                     ranking_medidas = (filtered_df.groupby('mddCorretSelecionada')['gravidadeMaxima'].size().reset_index(name='total_medidas'))
                     ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
                     ranking_medidas['ranking'] = ranking_medidas.index + 1
@@ -819,32 +882,98 @@ if data is not None:
                             </div>
                         </body>
                         """
-                    components.html(html_content1, height=570)
-
-
-                with grafico_medida:
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Nº de Medidas Disciplinares por Tipo e Unidade", unsafe_allow_html=True)
-                    grouped_data = filtered_df.groupby(['unidade', 'mddCorretSelecionada']).size().reset_index(name='Total')
-                    custom_greys = ['#2b2b2b', '#525252', '#7f7f7f', '#aaaaaa', '#d4d4d4']
-                    # Criar gráfico de barras empilhadas na horizontal
-                    fig = px.bar(
-                        grouped_data,
-                        x='unidade',
-                        y='Total',
-                        color='mddCorretSelecionada',
-                        labels={'unidade': 'Unidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
-                        text_auto=True,
-                        color_discrete_sequence=custom_greys   # Paleta de cinza
-                    )
-
-                    # Ajustar altura do gráfico
-                    fig.update_layout(
-                        height=550  # Define a altura do gráfico
-                    )
-
-                    # Exibir gráfico no Streamlit
-                    st.plotly_chart(fig, use_container_width=True)
+                    components.html(html_content1, height=350)
+                with space:
+                    st.write("")    
  
+                with tabela_lead:
+                    st.markdown("""
+                    <div class="section-divider">
+                        <span>Lead Time</span>
+                    </div>
+                    """,unsafe_allow_html=True)
+                    average_lead_time = filtered_df.groupby('unidade', as_index=False)['lead_time'].mean()
+                    average_lead_time = average_lead_time.sort_values(by='lead_time', ascending=True)
+
+                    # Criar o gráfico de barras horizontal com Plotly Express
+                
+                    fig = px.bar(
+                        average_lead_time,
+                        x='lead_time',
+                        y='unidade',
+                        orientation='h',  # Barras horizontais
+                        title='Média de Lead Time por Unidade (em dias)',
+                        labels={'lead_time_days': 'Média de Lead Time (dias)', 'unidade': 'Unidade'},
+                        text='lead_time',  # Exibe o valor nas barras
+                        color='lead_time',  # Mapear cores ao valor de lead_time_days
+                        color_continuous_scale=[[0, '#F29422'], [1, '#F24B4B']],
+                    )
+
+                    # Customizações
+                    fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')  # Formatação do texto
+                    fig.update_layout(
+                        xaxis_title='Média de Lead Time (dias)',
+                        yaxis_title='Unidade',
+                        xaxis=dict(showgrid=True),
+                        template='plotly_white' ,
+                        height=500 # Estilo do gráfico
+                    )
+
+                    # Mostrar o gráfico
+                    st.plotly_chart(fig, use_container_width=True)
+                    ranking_lead_time = (filtered_df.groupby('unidade', as_index=False)['lead_time'].mean().rename(columns={'lead_time': 'media_time'}))
+                    ranking_lead_time = (ranking_lead_time.sort_values(by='media_time', ascending=False).reset_index(drop=True))
+                  
+                    ranking_lead_time['ranking'] = ranking_lead_time.index + 1
+
+                    html_content1 = f"""
+                        <body>
+                        <style>
+                        {css_carregado}
+                        </style>
+                            <div class="ranking-container">
+                                <div class="ranking-header">
+                                    Ranking de Lead Time por Unidade (em dias)
+                                </div>
+                                <ul class="ranking-list">
+                    """            
+                    for  row in ranking_lead_time.itertuples():
+                        html_content1 += f"""
+                            <li class="ranking-item">
+                                <span class="ranking-position">{row.ranking}º</span>
+                                <span class="city-name">{row.unidade}</span>
+                                <span class="case-count">{row.media_time:.1f} dias</span>
+                            </li> 
+                        """
+                    html_content1 += """
+                                </ul>
+                            </div>
+                        </body>
+                        """
+                    components.html(html_content1, height=350)
+                                    
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         with tabRegioes:
             col1, col2 = st.columns(2)
             with col1:
@@ -927,56 +1056,6 @@ if data is not None:
             st.markdown("---")
 
 
-        ################## Mapa interativo ##########################
-       
-        # # Obter coordenadas das cidades
-        # from geopy.geocoders import Nominatim
-        # geolocator = Nominatim(user_agent="geoapiExercises")
-
-        # # Criar um cache para coordenadas para evitar múltiplas chamadas
-        # @st.cache_data()
-        # def get_city_coordinates(cities):
-        #     coordinates = {}
-        #     for city in cities:
-        #         try:
-        #             location = geolocator.geocode(city + ", Brasil", timeout=10)
-        #             if location:
-        #                 coordinates[city] = {'latitude': location.latitude, 'longitude': location.longitude}
-        #             else:
-        #                 coordinates[city] = {'latitude': None, 'longitude': None}
-        #         except:
-        #             coordinates[city] = {'latitude': None, 'longitude': None}
-        #     return coordinates
-
-        # city_counts = filtered_df['cidadeFato'].value_counts().reset_index()
-        # city_counts.columns = ['Cidade', 'Total']
-
-        # city_coords = get_city_coordinates(city_counts['Cidade'])
-
-        # city_counts['latitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['latitude'])
-        # city_counts['longitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['longitude'])
-
-        # # Remover cidades sem coordenadas
-        # city_counts = city_counts.dropna(subset=['latitude', 'longitude'])
-
-        # fig_map = px.scatter_geo(
-        #     city_counts,
-        #     lat='latitude',
-        #     lon='longitude',
-        #     size='Total',
-        #     hover_name='Cidade',
-        #     color='Total',
-        #     color_continuous_scale=px.colors.sequential.Greys,  # Paleta de cinza
-        #     projection="mercator",  # Projeção para aproximar o Brasil
-        #     title='Sindicâncias por Cidade no Brasil'
-        # )
-
-        # # Ajustar limites do mapa para o Brasil
-        # fig_map.update_geos(
-        #     fitbounds="locations",  # Ajusta os limites ao Brasil
-        #     visible=False
-        # )
-        # st.plotly_chart(fig_map, use_container_width=True)
 
 
 
@@ -1009,7 +1088,7 @@ if data is not None:
         #     st.plotly_chart(fig_regiao, use_container_width=True)
 
         # 5. Painel de Irregularidades e Gravidades
-        st.markdown("---")
+
         # st.header("Painel de Irregularidades e Gravidades")
 
         # irregularidade_df = filtered_df.groupby(['irregularidade', 'gravidadeMaxima']).size().reset_index(name='Frequência')
@@ -1026,9 +1105,11 @@ if data is not None:
         # st.header("Painel de Investigados e Resultados")
 
         # Tabela com todos os principais dados das sindicâncias
-     
-        st.header("Detalhamento de uma Sindicância Específica")
-
+        st.markdown("""
+                    <div class="section-divider">
+                        <span>Detalhamento de uma Sindicância Específica</span>
+                    </div>
+                    """,unsafe_allow_html=True)
         # Selecionar um processo específico
         processos_disponiveis = filtered_df['processInstanceId'].unique()
         processo_selecionado = st.selectbox("Selecione o ID do Processo", processos_disponiveis)
@@ -1096,6 +1177,56 @@ if data is not None:
         }))
         # 7. Novo Painel para Visualização Detalhada de uma Sindicância
         st.markdown("---")
+    from geopy.geocoders import Nominatim
+    geolocator = Nominatim(user_agent="my_app")
+
+    # Criar um cache para coordenadas para evitar múltiplas chamadas
+    @st.cache_data()
+    def get_city_coordinates(cities):
+        coordinates = {}
+        for city in cities:
+            try:
+                location = geolocator.geocode(city + ", Brasil", timeout=10)
+                if location:
+                    coordinates[city] = {'latitude': location.latitude, 'longitude': location.longitude}
+                else:
+                    coordinates[city] = {'latitude': None, 'longitude': None}
+            except:
+                coordinates[city] = {'latitude': None, 'longitude': None}
+        return coordinates
+
+    city_counts = filtered_df['cidadeFato'].value_counts().reset_index()
+    city_counts.columns = ['Cidade', 'Total']
+
+    city_coords = get_city_coordinates(city_counts['Cidade'])
+
+    city_counts['latitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['latitude'])
+    city_counts['longitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['longitude'])
+
+    # Remover cidades sem coordenadas
+    city_counts = city_counts.dropna(subset=['latitude', 'longitude'])
+    center_lat = city_counts['latitude'].mean()
+    center_lon = city_counts['longitude'].mean()
+
+    # Ajustar o zoom (pode ser ajustado conforme necessário)
+    zoom_level = 4
+
+    # Criar o mapa focado nas ocorrências
+    fig_map = px.scatter_mapbox(
+        city_counts,
+        lat='latitude',
+        lon='longitude',
+        size='Total',
+        hover_name='Cidade',
+        color='Total',
+        zoom=zoom_level,
+        mapbox_style='open-street-map',
+        title='Sindicâncias por Cidade',
+        center={"lat": center_lat, "lon": center_lon}
+    )
+
+    # Mostrar o mapa no Streamlit
+    st.plotly_chart(fig_map, use_container_width=True)
      
    
 
