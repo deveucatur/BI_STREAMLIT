@@ -271,7 +271,13 @@ if data is not None:
             #investigado_filter = multiselect_with_all("Investigado", df['nmInvestigado'].dropna().unique()) 
         
         #end_date = datetime.today().date()
-        df = df[(df['startDate'] >= pd.Timestamp(start_date)) & ((df['endDate'].isna()) |  (df['endDate'] <= pd.Timestamp(end_date)))]
+        df = df[
+        (df['startDate'] >= pd.Timestamp(start_date)) &
+        (
+            (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
+            (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
+        )
+        ]
         
         
 
