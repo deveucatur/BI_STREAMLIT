@@ -356,250 +356,250 @@ if data is not None:
         
         
  
-        tabUnidades, tabCidades,tabRegioes = st.tabs(["Unidades","Cidades", "Regiões"])
+        tabUnidades, tabRegioes = st.tabs(["Unidades", "Regiões"])
 
-        with tabCidades:
+        # with tabCidades:
                 
-               ####################  CIDADES ##############################
-                grafico_cidade, macroprocesso, tabela_cidades = st.columns([2.1,0.8,1.6])
-                with grafico_cidade:
+        #        ####################  CIDADES ##############################
+        #         grafico_cidade, macroprocesso, tabela_cidades = st.columns([2.1,0.8,1.6])
+        #         with grafico_cidade:
                     
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Sindicâncias por Cidade", unsafe_allow_html=True)
-                    cidade_count = filtered_df['cidadeFato'].value_counts().reset_index()
-                    cidade_count.columns = ['Cidade', 'Total']
+        #             st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Sindicâncias por Cidade", unsafe_allow_html=True)
+        #             cidade_count = filtered_df['cidadeFato'].value_counts().reset_index()
+        #             cidade_count.columns = ['Cidade', 'Total']
 
-                    fig_cidade = px.bar(
-                        cidade_count,
-                        x='Total',  # Total no eixo horizontal
-                        y='Cidade',  # Cidade no eixo vertical
-                        color='Total',  # Colorir as barras pelo total
-                        color_continuous_scale=[[0, '#05AFF2'], [1, '#2BD957']],  # Escala de cores
-                        orientation='h'  # Orientação horizontal
-                    )
-                    fig_cidade.update_layout(
-                        height=540  # Aumenta a altura do gráfico em pixels
-                    )
+        #             fig_cidade = px.bar(
+        #                 cidade_count,
+        #                 x='Total',  # Total no eixo horizontal
+        #                 y='Cidade',  # Cidade no eixo vertical
+        #                 color='Total',  # Colorir as barras pelo total
+        #                 color_continuous_scale=[[0, '#05AFF2'], [1, '#2BD957']],  # Escala de cores
+        #                 orientation='h'  # Orientação horizontal
+        #             )
+        #             fig_cidade.update_layout(
+        #                 height=540  # Aumenta a altura do gráfico em pixels
+        #             )
 
-                    # Exibir no Streamlit
-                    st.plotly_chart(fig_cidade, use_container_width=True)
+        #             # Exibir no Streamlit
+        #             st.plotly_chart(fig_cidade, use_container_width=True)
                
-                with macroprocesso:
-                    st.markdown("")
-                #     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Macroprocesso", unsafe_allow_html=True)
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Administrar</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
-                #     st.markdown("")
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Operar</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
-                #     st.markdown("")
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Relacionamento Cargas</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
-                #     st.markdown("")
-                #     st.markdown("""
-                #     <div class="metric">
-                #         <h3>Relacionamento Pessoas</h3>
-                #         <h1>{}</h1>
-                #     </div>
-                # """.format(status_prazo ), unsafe_allow_html=True)
+        #         with macroprocesso:
+        #             st.markdown("")
+        #         #     st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Macroprocesso", unsafe_allow_html=True)
+        #         #     st.markdown("""
+        #         #     <div class="metric">
+        #         #         <h3>Administrar</h3>
+        #         #         <h1>{}</h1>
+        #         #     </div>
+        #         # """.format(status_prazo ), unsafe_allow_html=True)
+        #         #     st.markdown("")
+        #         #     st.markdown("""
+        #         #     <div class="metric">
+        #         #         <h3>Operar</h3>
+        #         #         <h1>{}</h1>
+        #         #     </div>
+        #         # """.format(status_prazo ), unsafe_allow_html=True)
+        #         #     st.markdown("")
+        #         #     st.markdown("""
+        #         #     <div class="metric">
+        #         #         <h3>Relacionamento Cargas</h3>
+        #         #         <h1>{}</h1>
+        #         #     </div>
+        #         # """.format(status_prazo ), unsafe_allow_html=True)
+        #         #     st.markdown("")
+        #         #     st.markdown("""
+        #         #     <div class="metric">
+        #         #         <h3>Relacionamento Pessoas</h3>
+        #         #         <h1>{}</h1>
+        #         #     </div>
+        #         # """.format(status_prazo ), unsafe_allow_html=True)
         
-                with tabela_cidades:
-                    ranking = filtered_df.groupby('cidadeFato').size().reset_index(name='num_sindicancias')
-                    ranking = ranking.sort_values(by='num_sindicancias', ascending=False).reset_index(drop=True)
-                    ranking['ranking'] = ranking.index + 1
+        #         with tabela_cidades:
+        #             ranking = filtered_df.groupby('cidadeFato').size().reset_index(name='num_sindicancias')
+        #             ranking = ranking.sort_values(by='num_sindicancias', ascending=False).reset_index(drop=True)
+        #             ranking['ranking'] = ranking.index + 1
 
-                    html_content1 = f"""
-                        <body>
-                        <style>
-                        {css_carregado}
-                        </style>
-                            <div class="ranking-container">
-                                <div class="ranking-header">
-                                    Ranking de Cidades
-                                </div>
-                                <ul class="ranking-list">
-                    """            
-                    for  row in ranking.itertuples():
-                        html_content1 += f"""
-                            <li class="ranking-item">
-                                <span class="ranking-position">{row.ranking}º</span>
-                                <span class="city-name">{row.cidadeFato}</span>
-                                <span class="case-count">{row.num_sindicancias} sindicâncias</span>
-                            </li> 
-                        """
-                    html_content1 += """
-                                </ul>
-                            </div>
-                        </body>
-                        """
-                    components.html(html_content1, height=540)
+        #             html_content1 = f"""
+        #                 <body>
+        #                 <style>
+        #                 {css_carregado}
+        #                 </style>
+        #                     <div class="ranking-container">
+        #                         <div class="ranking-header">
+        #                             Ranking de Cidades
+        #                         </div>
+        #                         <ul class="ranking-list">
+        #             """            
+        #             for  row in ranking.itertuples():
+        #                 html_content1 += f"""
+        #                     <li class="ranking-item">
+        #                         <span class="ranking-position">{row.ranking}º</span>
+        #                         <span class="city-name">{row.cidadeFato}</span>
+        #                         <span class="case-count">{row.num_sindicancias} sindicâncias</span>
+        #                     </li> 
+        #                 """
+        #             html_content1 += """
+        #                         </ul>
+        #                     </div>
+        #                 </body>
+        #                 """
+        #             components.html(html_content1, height=540)
 
-                ####################  IRREGULARIDADES ##############################
-                tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
-                with tabela_irregula:    
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Cidade", unsafe_allow_html=True)
-                    irregularidade_por_cidade_df = filtered_df.groupby(
-                    ['cidadeFato', 'irregularidade', 'gravidadeMaxima']
-                    ).size().reset_index(name='Frequência')
+        #         ####################  IRREGULARIDADES ##############################
+        #         tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
+        #         with tabela_irregula:    
+        #             st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Cidade", unsafe_allow_html=True)
+        #             irregularidade_por_cidade_df = filtered_df.groupby(
+        #             ['cidadeFato', 'irregularidade', 'gravidadeMaxima']
+        #             ).size().reset_index(name='Frequência')
 
-                    # Criar o gráfico de barras horizontais
-                    fig_irregularidade_barras_horizontais = px.bar(
-                        irregularidade_por_cidade_df,
-                        x='Frequência',  # Eixo X exibe a frequência
-                        y='cidadeFato',  # Eixo Y exibe as cidades (cidadeFato)
-                        color='gravidadeMaxima',  # Diferencia por gravidade máxima
-                        orientation='h',  # Orientação horizontal
-                        text='irregularidade',  # Exibe irregularidade como rótulo
-                        color_discrete_sequence=['#5C6F7A', '#7B8C96', '#9CA5AE', '#BFC0C2', '#333333']   # Paleta de cores
-                    )
+        #             # Criar o gráfico de barras horizontais
+        #             fig_irregularidade_barras_horizontais = px.bar(
+        #                 irregularidade_por_cidade_df,
+        #                 x='Frequência',  # Eixo X exibe a frequência
+        #                 y='cidadeFato',  # Eixo Y exibe as cidades (cidadeFato)
+        #                 color='gravidadeMaxima',  # Diferencia por gravidade máxima
+        #                 orientation='h',  # Orientação horizontal
+        #                 text='irregularidade',  # Exibe irregularidade como rótulo
+        #                 color_discrete_sequence=['#5C6F7A', '#7B8C96', '#9CA5AE', '#BFC0C2', '#333333']   # Paleta de cores
+        #             )
 
-                    # Configurar o layout do gráfico
-                    fig_irregularidade_barras_horizontais.update_layout(
+        #             # Configurar o layout do gráfico
+        #             fig_irregularidade_barras_horizontais.update_layout(
                        
-                        xaxis_title='Total',
-                        yaxis_title='Cidade',
-                        legend_title='Gravidade Máxima',
-                        yaxis={'categoryorder': 'total ascending'} ,
-                        height=540  # Ordenação opcional por frequência
-                    )
+        #                 xaxis_title='Total',
+        #                 yaxis_title='Cidade',
+        #                 legend_title='Gravidade Máxima',
+        #                 yaxis={'categoryorder': 'total ascending'} ,
+        #                 height=540  # Ordenação opcional por frequência
+        #             )
                    
-                    # Exibir o gráfico na aplicação Streamlit
-                    st.plotly_chart(fig_irregularidade_barras_horizontais, use_container_width=True)
+        #             # Exibir o gráfico na aplicação Streamlit
+        #             st.plotly_chart(fig_irregularidade_barras_horizontais, use_container_width=True)
 
 
-                with gravidade:
-                    gravidade_total = len(filtered_df['gravidadeMaxima'])
-                    gravidade_grave = filtered_df[filtered_df['gravidadeMaxima'] == 'Grave'].shape[0]
-                    gravidade_mediana = filtered_df[filtered_df['gravidadeMaxima'] == 'Moderada'].shape[0]
-                    gravidade_leve = filtered_df[filtered_df['gravidadeMaxima'] == 'Leve'].shape[0]
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Gravidade", unsafe_allow_html=True)
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Total</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_total ), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Grave</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_grave), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Mediana</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_mediana), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Leve</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_leve), unsafe_allow_html=True)
+        #         with gravidade:
+        #             gravidade_total = len(filtered_df['gravidadeMaxima'])
+        #             gravidade_grave = filtered_df[filtered_df['gravidadeMaxima'] == 'Grave'].shape[0]
+        #             gravidade_mediana = filtered_df[filtered_df['gravidadeMaxima'] == 'Moderada'].shape[0]
+        #             gravidade_leve = filtered_df[filtered_df['gravidadeMaxima'] == 'Leve'].shape[0]
+        #             st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Gravidade", unsafe_allow_html=True)
+        #             st.markdown("""
+        #             <div class="metric">
+        #                 <h3>Total</h3>
+        #                 <h1>{}</h1>
+        #             </div>
+        #         """.format(gravidade_total ), unsafe_allow_html=True)
+        #             st.markdown("")
+        #             st.markdown("""
+        #             <div class="metric">
+        #                 <h3>Grave</h3>
+        #                 <h1>{}</h1>
+        #             </div>
+        #         """.format(gravidade_grave), unsafe_allow_html=True)
+        #             st.markdown("")
+        #             st.markdown("""
+        #             <div class="metric">
+        #                 <h3>Mediana</h3>
+        #                 <h1>{}</h1>
+        #             </div>
+        #         """.format(gravidade_mediana), unsafe_allow_html=True)
+        #             st.markdown("")
+        #             st.markdown("""
+        #             <div class="metric">
+        #                 <h3>Leve</h3>
+        #                 <h1>{}</h1>
+        #             </div>
+        #         """.format(gravidade_leve), unsafe_allow_html=True)
                           
-                with grafico_irregula:   
+        #         with grafico_irregula:   
 
-                    ranking_cidades = (filtered_df.groupby('tbIrregularidade___1')['gravidadeMaxima'].size().reset_index(name='total_irregularidades'))
-                    ranking_cidades = ranking_cidades.sort_values(by='total_irregularidades', ascending=False).reset_index(drop=True)
-                    ranking_cidades['ranking'] = ranking_cidades.index + 1
+        #             ranking_cidades = (filtered_df.groupby('tbIrregularidade___1')['gravidadeMaxima'].size().reset_index(name='total_irregularidades'))
+        #             ranking_cidades = ranking_cidades.sort_values(by='total_irregularidades', ascending=False).reset_index(drop=True)
+        #             ranking_cidades['ranking'] = ranking_cidades.index + 1
 
-                    html_content1 = f"""
-                        <body>
-                        <style>
-                        {css_carregado}
-                        </style>
-                            <div class="ranking-container">
-                                <div class="ranking-header">
-                                    Ranking de Irregularidades
-                                </div>
-                                <ul class="ranking-list">
-                    """            
-                    for  row in ranking_cidades.itertuples():
-                        html_content1 += f"""
-                            <li class="ranking-item">
-                                <span class="ranking-position">{row.ranking}º</span>
-                                <span class="city-name">{row.tbIrregularidade___1}</span>
-                                <span class="case-count">{row.total_irregularidades} </span>
-                            </li> 
-                        """
-                    html_content1 += """
-                                </ul>
-                            </div>
-                        </body>
-                        """
-                    components.html(html_content1, height=570)
-                    st.markdown("")
+        #             html_content1 = f"""
+        #                 <body>
+        #                 <style>
+        #                 {css_carregado}
+        #                 </style>
+        #                     <div class="ranking-container">
+        #                         <div class="ranking-header">
+        #                             Ranking de Irregularidades
+        #                         </div>
+        #                         <ul class="ranking-list">
+        #             """            
+        #             for  row in ranking_cidades.itertuples():
+        #                 html_content1 += f"""
+        #                     <li class="ranking-item">
+        #                         <span class="ranking-position">{row.ranking}º</span>
+        #                         <span class="city-name">{row.tbIrregularidade___1}</span>
+        #                         <span class="case-count">{row.total_irregularidades} </span>
+        #                     </li> 
+        #                 """
+        #             html_content1 += """
+        #                         </ul>
+        #                     </div>
+        #                 </body>
+        #                 """
+        #             components.html(html_content1, height=570)
+        #             st.markdown("")
 
-                tabela_medida ,colsp, grafico_medida= st.columns([1.9,0.5,4])
-                with tabela_medida:
-                    ranking_medidas = (filtered_df.groupby('mddCorretSelecionada')['gravidadeMaxima'].size().reset_index(name='total_medidas'))
-                    ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
-                    ranking_medidas['ranking'] = ranking_medidas.index + 1
+        #         tabela_medida ,colsp, grafico_medida= st.columns([1.9,0.5,4])
+        #         with tabela_medida:
+        #             ranking_medidas = (filtered_df.groupby('mddCorretSelecionada')['gravidadeMaxima'].size().reset_index(name='total_medidas'))
+        #             ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
+        #             ranking_medidas['ranking'] = ranking_medidas.index + 1
 
-                    html_content1 = f"""
-                        <body>
-                        <style>
-                        {css_carregado}
-                        </style>
-                            <div class="ranking-container">
-                                <div class="ranking-header">
-                                    Ranking de Medidas
-                                </div>
-                                <ul class="ranking-list">
-                    """            
-                    for  row in ranking_medidas.itertuples():
-                        html_content1 += f"""
-                            <li class="ranking-item">
-                                <span class="ranking-position">{row.ranking}º</span>
-                                <span class="city-name">{row.mddCorretSelecionada}</span>
-                                <span class="case-count">{row.total_medidas} Medidas</span>
-                            </li> 
-                        """
-                    html_content1 += """
-                                </ul>
-                            </div>
-                        </body>
-                        """
-                    components.html(html_content1, height=570)
+        #             html_content1 = f"""
+        #                 <body>
+        #                 <style>
+        #                 {css_carregado}
+        #                 </style>
+        #                     <div class="ranking-container">
+        #                         <div class="ranking-header">
+        #                             Ranking de Medidas
+        #                         </div>
+        #                         <ul class="ranking-list">
+        #             """            
+        #             for  row in ranking_medidas.itertuples():
+        #                 html_content1 += f"""
+        #                     <li class="ranking-item">
+        #                         <span class="ranking-position">{row.ranking}º</span>
+        #                         <span class="city-name">{row.mddCorretSelecionada}</span>
+        #                         <span class="case-count">{row.total_medidas} Medidas</span>
+        #                     </li> 
+        #                 """
+        #             html_content1 += """
+        #                         </ul>
+        #                     </div>
+        #                 </body>
+        #                 """
+        #             components.html(html_content1, height=570)
 
 
-                with grafico_medida:
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Nº de Medidas Disciplinares por Tipo e Cidade", unsafe_allow_html=True)
-                    grouped_data = filtered_df.groupby(['cidadeFato', 'mddCorretSelecionada']).size().reset_index(name='Total')
-                    custom_greys = ['#2b2b2b', '#525252', '#7f7f7f', '#aaaaaa', '#d4d4d4']
-                    # Criar gráfico de barras empilhadas na horizontal
-                    fig = px.bar(
-                        grouped_data,
-                        x='cidadeFato',
-                        y='Total',
-                        color='mddCorretSelecionada',
-                        labels={'cidadeFato': 'Cidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
-                        text_auto=True,
-                        color_discrete_sequence=custom_greys   # Paleta de cinza
-                    )
+        #         with grafico_medida:
+        #             st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Nº de Medidas Disciplinares por Tipo e Cidade", unsafe_allow_html=True)
+        #             grouped_data = filtered_df.groupby(['cidadeFato', 'mddCorretSelecionada']).size().reset_index(name='Total')
+        #             custom_greys = ['#2b2b2b', '#525252', '#7f7f7f', '#aaaaaa', '#d4d4d4']
+        #             # Criar gráfico de barras empilhadas na horizontal
+        #             fig = px.bar(
+        #                 grouped_data,
+        #                 x='cidadeFato',
+        #                 y='Total',
+        #                 color='mddCorretSelecionada',
+        #                 labels={'cidadeFato': 'Cidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
+        #                 text_auto=True,
+        #                 color_discrete_sequence=custom_greys   # Paleta de cinza
+        #             )
 
-                    # Ajustar altura do gráfico
-                    fig.update_layout(
-                        height=550  # Define a altura do gráfico
-                    )
+        #             # Ajustar altura do gráfico
+        #             fig.update_layout(
+        #                 height=550  # Define a altura do gráfico
+        #             )
 
-                    # Exibir gráfico no Streamlit
-                    st.plotly_chart(fig, use_container_width=True)
+        #             # Exibir gráfico no Streamlit
+        #             st.plotly_chart(fig, use_container_width=True)
  
 
         with tabUnidades:
