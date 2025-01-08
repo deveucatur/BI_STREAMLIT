@@ -227,7 +227,7 @@ if data is not None:
         ] = 'No Prazo'
             
         # 2. Filtros Interativos
-        with st.expander("Filtros BI"):
+        with st.expander("Filtros"):
             
 
             def multiselect_with_all(label, options):
@@ -248,12 +248,13 @@ if data is not None:
                  gravidade_filter = multiselect_with_all("Gravidade", ['Leve', 'Moderada', 'Grave'])
             colsta4, colsta5 = st.columns(2)
             with colsta4:
-                 regiao_filter = multiselect_with_all("Região", df['regiaoUnidade'].dropna().unique())
+                unidade_filter = multiselect_with_all("Unidade", df['unidade'].unique())
+                 #regiao_filter = multiselect_with_all("Região", df['regiaoUnidade'].dropna().unique())
             with colsta5: 
                  solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'].dropna().unique())
 
             #cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
-            unidade_filter = multiselect_with_all("Unidade", df['unidade'].unique())
+            
             colsta6, colsta7,colsta8 = st.columns(3)
             with colsta6:
              medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'].dropna().unique())
@@ -271,13 +272,13 @@ if data is not None:
             #investigado_filter = multiselect_with_all("Investigado", df['nmInvestigado'].dropna().unique()) 
         
         #end_date = datetime.today().date()
-        df = df[
-        (df['startDate'] >= pd.Timestamp(start_date)) &
-        (
-            (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
-            (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
-        )
-        ]
+        # df = df[
+        # (df['startDate'] >= pd.Timestamp(start_date)) &
+        # (
+        #     (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
+        #     (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
+        # )
+        # ]
         
         
 
@@ -287,12 +288,27 @@ if data is not None:
             (df['slaStatus'].isin(sla_filter)) &
             #(df['cidadeFato'].isin(cidade_filter)) &
             (df['unidade'].isin(unidade_filter)) &
-            (df['regiaoUnidade'].isin(regiao_filter)) &
+            #(df['regiaoUnidade'].isin(regiao_filter)) &
             (df['mddCorretSelecionada'].isin(medida_filter)) &
             #(df['irregularidade'].isin(irregularidade_filter)) &
             (df['gravidadeMaxima'].isin(gravidade_filter)) &
             #(df['nmInvestigado'].isin(investigado_filter)) &
-            (df['solicitante'].isin(solicitante_filter))
+            (df['solicitante'].isin(solicitante_filter)) &
+            (df['startDate'] >= pd.Timestamp(start_date)) &
+            (
+            (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
+            (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
+            )
+
+        ]
+        filtered_metrics = df[
+            (df['unidade'].isin(unidade_filter)) &
+            (df['startDate'] >= pd.Timestamp(start_date)) &
+            (
+            (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
+            (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
+            )
+
         ]
 
 
@@ -303,13 +319,13 @@ if data is not None:
 
 
         col1, col2, col3, col4,col5,col6 = st.columns(6)
-        total_processos = len(filtered_df)
-        status_finalizado = filtered_df[filtered_df['status'] == 'Finalizado'].shape[0]
-        status_aberto = filtered_df[filtered_df['status'] == 'Aberto'].shape[0]
-        status_prazo = filtered_df[filtered_df['slaStatus'] == 'No Prazo' ].shape[0]
-        status_atraso = filtered_df[filtered_df['slaStatus'] == 'Em Atraso'].shape[0]
-        status_lead =   filtered_df['lead_time'].mean()
-        status_preju = soma_total = filtered_df['prejFinanc'].sum() 
+        total_processos = len(filtered_metrics)
+        status_finalizado = filtered_metrics[filtered_metrics['status'] == 'Finalizado'].shape[0]
+        status_aberto = filtered_metrics[filtered_metrics['status'] == 'Aberto'].shape[0]
+        status_prazo = filtered_metrics[filtered_metrics['slaStatus'] == 'No Prazo' ].shape[0]
+        status_atraso = filtered_metrics[filtered_metrics['slaStatus'] == 'Em Atraso'].shape[0]
+        status_lead =   filtered_metrics['lead_time'].mean()
+        status_preju = soma_total = filtered_metrics['prejFinanc'].sum() 
         
         with col1:
             st.markdown("""
@@ -362,7 +378,7 @@ if data is not None:
         
         
  
-        tabUnidades, tabRegioes = st.tabs(["Unidades", "Regiões"])
+        
 
         # with tabCidades:
                 
@@ -608,461 +624,436 @@ if data is not None:
         #             st.plotly_chart(fig, use_container_width=True)
  
 
-        with tabUnidades:
-                 ####################  UNIDADES ##############################
-                st.markdown("""
-                    <div class="section-divider">
-                        <span> Sindicâncias</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-                grafico_Unidades, mapa, tabela_Unidades = st.columns([2,0.05,1.2])
-                with grafico_Unidades:
-                    
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Sindicâncias por Unidade", unsafe_allow_html=True)
-                    unidade_count = filtered_df['unidade'].value_counts().reset_index()
-                    unidade_count.columns = ['Unidade', 'Total']
+       
+        st.markdown("")
+        st.markdown("""
+            <div class="section-divider">
+                <span> Sindicâncias</span>
+            </div>
+            """, unsafe_allow_html=True)
+        grafico_Unidades, mapa, tabela_Unidades = st.columns([2,0.05,1.2])
+        with grafico_Unidades:
+            
+            st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Sindicâncias por Unidade", unsafe_allow_html=True)
+            unidade_count = filtered_df['unidade'].value_counts().reset_index()
+            unidade_count.columns = ['Unidade', 'Total']
 
-                    fig_unidade = px.bar(
-                        unidade_count,
-                        x='Total',  # Total no eixo horizontal
-                        y='Unidade',  # Unidade no eixo vertical
-                        color='Total',  # Colorir as barras pelo total
-                        color_continuous_scale=[[0, '#05AFF2'], [1, '#2BD957']],  # Escala de cores
-                        orientation='h'  # Orientação horizontal
-                    )
-                    fig_unidade.update_layout(
-                        height=540  # Aumenta a altura do gráfico em pixels
-                    )
+            fig_unidade = px.bar(
+                unidade_count,
+                x='Total',  # Total no eixo horizontal
+                y='Unidade',  # Unidade no eixo vertical
+                color='Total',  # Colorir as barras pelo total
+                color_continuous_scale=[[0, '#05AFF2'], [1, '#2BD957']],  # Escala de cores
+                orientation='h'  # Orientação horizontal
+            )
+            fig_unidade.update_layout(
+                height=540  # Aumenta a altura do gráfico em pixels
+            )
 
-                    # Exibir no Streamlit
-                    st.plotly_chart(fig_unidade, use_container_width=True)
-               
-                with mapa:
-                    st.write("")
-                    # from geopy.geocoders import Nominatim
-                    # geolocator = Nominatim(user_agent="my_app")
-
-                    # # Criar um cache para coordenadas para evitar múltiplas chamadas
-                    # @st.cache_data()
-                    # def get_city_coordinates(cities):
-                    #     coordinates = {}
-                    #     for city in cities:
-                    #         try:
-                    #             location = geolocator.geocode(city + ", Brasil", timeout=10)
-                    #             if location:
-                    #                 coordinates[city] = {'latitude': location.latitude, 'longitude': location.longitude}
-                    #             else:
-                    #                 coordinates[city] = {'latitude': None, 'longitude': None}
-                    #         except:
-                    #             coordinates[city] = {'latitude': None, 'longitude': None}
-                    #     return coordinates
-
-                    # city_counts = filtered_df['cidadeFato'].value_counts().reset_index()
-                    # city_counts.columns = ['Cidade', 'Total']
-
-                    # city_coords = get_city_coordinates(city_counts['Cidade'])
-
-                    # city_counts['latitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['latitude'])
-                    # city_counts['longitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['longitude'])
-
-                    # # Remover cidades sem coordenadas
-                    # city_counts = city_counts.dropna(subset=['latitude', 'longitude'])
-                    # center_lat = city_counts['latitude'].mean()
-                    # center_lon = city_counts['longitude'].mean()
-
-                    # # Ajustar o zoom (pode ser ajustado conforme necessário)
-                    # zoom_level = 4
-
-                    # # Criar o mapa focado nas ocorrências
-                    # fig_map = px.scatter_mapbox(
-                    #     city_counts,
-                    #     lat='latitude',
-                    #     lon='longitude',
-                    #     size='Total',
-                    #     hover_name='Cidade',
-                    #     color='Total',
-                    #     zoom=zoom_level,
-                    #     mapbox_style='open-street-map',
-                    #     title='Sindicâncias por Cidade',
-                    #     center={"lat": center_lat, "lon": center_lon}
-                    # )
-
-                    # # Mostrar o mapa no Streamlit
-                    # st.plotly_chart(fig_map, use_container_width=True)
-
-
+            # Exibir no Streamlit
+            st.plotly_chart(fig_unidade, use_container_width=True)
         
-                with tabela_Unidades:
-                    rankingUni = filtered_df.groupby('unidade').size().reset_index(name='num_sindicancias')
-                    rankingUni =  rankingUni.sort_values(by='num_sindicancias', ascending=False).reset_index(drop=True)
-                    rankingUni ['ranking'] = rankingUni.index + 1
+        with mapa:
+            st.write("")
+            # from geopy.geocoders import Nominatim
+            # geolocator = Nominatim(user_agent="my_app")
 
-                    html_content1 = f"""
-                        <body>
-                        <style>
-                        {css_carregado}
-                        </style>
-                            <div class="ranking-container ranking-green">
-                                <div class="ranking-header">
-                                    Ranking de Unidades
-                                </div>
-                                <ul class="ranking-list">
-                    """            
-                    for  row in rankingUni.itertuples():
-                        html_content1 += f"""
-                            <li class="ranking-item">
-                                <span class="ranking-position">{row.ranking}º</span>
-                                <span class="city-name">{row.unidade}</span>
-                                <span class="case-count">{row.num_sindicancias}</span>
-                            </li> 
-                        """
-                    html_content1 += """
-                                </ul>
-                            </div>
-                        </body>
-                        """
-                    components.html(html_content1, height=570)
-                   
-                st.markdown("""
-                    <div class="section-divider">
-                        <span>Gravidade e Irregularidades</span>
-                    </div>
-                    """,unsafe_allow_html=True)
-                tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
-              
-                with tabela_irregula:    
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Unidade", unsafe_allow_html=True)
-                    irregularidade_por_unidade_df = filtered_df.groupby(
-                    ['unidade', 'irregularidade', 'gravidadeMaxima']
-                    ).size().reset_index(name='Frequência')
+            # # Criar um cache para coordenadas para evitar múltiplas chamadas
+            # @st.cache_data()
+            # def get_city_coordinates(cities):
+            #     coordinates = {}
+            #     for city in cities:
+            #         try:
+            #             location = geolocator.geocode(city + ", Brasil", timeout=10)
+            #             if location:
+            #                 coordinates[city] = {'latitude': location.latitude, 'longitude': location.longitude}
+            #             else:
+            #                 coordinates[city] = {'latitude': None, 'longitude': None}
+            #         except:
+            #             coordinates[city] = {'latitude': None, 'longitude': None}
+            #     return coordinates
 
-                    # Criar o gráfico de barras horizontais
-                    fig_irregularidade_barras_horizontais_Uni = px.bar(
-                       irregularidade_por_unidade_df,
-                        x='Frequência',  # Eixo X exibe a frequência
-                        y='unidade',  # Eixo Y exibe as cidades (cidadeFato)
-                        color='gravidadeMaxima',  # Diferencia por gravidade máxima
-                        orientation='h',  # Orientação horizontal
-                        text='irregularidade',  # Exibe irregularidade como rótulo
-                        color_discrete_sequence=['#F22771', '#2BD957', '#F29422']   # Paleta de cores
-                    )
+            # city_counts = filtered_df['cidadeFato'].value_counts().reset_index()
+            # city_counts.columns = ['Cidade', 'Total']
 
-                    # Configurar o layout do gráfico
-                    fig_irregularidade_barras_horizontais_Uni.update_layout(
-                       
-                        xaxis_title='Total',
-                        yaxis_title='Unidade',
-                        legend_title='Gravidade Máxima',
-                        yaxis={'categoryorder': 'total ascending'} ,
-                        height=540  # Ordenação opcional por frequência
-                    )
-                   
-                    # Exibir o gráfico na aplicação Streamlit
-                    st.plotly_chart(fig_irregularidade_barras_horizontais_Uni, use_container_width=True)
+            # city_coords = get_city_coordinates(city_counts['Cidade'])
 
+            # city_counts['latitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['latitude'])
+            # city_counts['longitude'] = city_counts['Cidade'].apply(lambda x: city_coords[x]['longitude'])
 
-                with gravidade:
-                    gravidade_total = len(filtered_df['gravidadeMaxima'])
-                    gravidade_grave = filtered_df[filtered_df['gravidadeMaxima'] == 'Grave'].shape[0]
-                    gravidade_mediana = filtered_df[filtered_df['gravidadeMaxima'] == 'Moderada'].shape[0]
-                    gravidade_leve = filtered_df[filtered_df['gravidadeMaxima'] == 'Leve'].shape[0]
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Gravidade", unsafe_allow_html=True)
-                    st.markdown("""
-                    <div class="metric">
-                        <h3>Total</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_total ), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric metric-pink">
-                        <h3>Grave</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_grave), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric metric-orange">
-                        <h3>Mediana</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_mediana), unsafe_allow_html=True)
-                    st.markdown("")
-                    st.markdown("""
-                    <div class="metric metric-green">
-                        <h3>Leve</h3>
-                        <h1>{}</h1>
-                    </div>
-                """.format(gravidade_leve), unsafe_allow_html=True)
-                          
-                with grafico_irregula:   
+            # # Remover cidades sem coordenadas
+            # city_counts = city_counts.dropna(subset=['latitude', 'longitude'])
+            # center_lat = city_counts['latitude'].mean()
+            # center_lon = city_counts['longitude'].mean()
 
-                    ranking_cidades = (filtered_df.groupby('tbIrregularidade___1')['gravidadeMaxima'].size().reset_index(name='total_irregularidades'))
-                    ranking_cidades = ranking_cidades.sort_values(by='total_irregularidades', ascending=False).reset_index(drop=True)
-                    ranking_cidades['ranking'] = ranking_cidades.index + 1
+            # # Ajustar o zoom (pode ser ajustado conforme necessário)
+            # zoom_level = 4
 
-                    html_content1 = f"""
-                        <body>
-                        <style>
-                        {css_carregado}
-                        </style>
-                            <div class="ranking-container">
-                                <div class="ranking-header">
-                                    Ranking de Irregularidades
-                                </div>
-                                <ul class="ranking-list">
-                    """            
-                    for  row in ranking_cidades.itertuples():
-                        html_content1 += f"""
-                            <li class="ranking-item">
-                                <span class="ranking-position">{row.ranking}º</span>
-                                <span class="city-name">{row.tbIrregularidade___1}</span>
-                                <span class="case-count">{row.total_irregularidades} </span>
-                            </li> 
-                        """
-                    html_content1 += """
-                                </ul>
-                            </div>
-                        </body>r
-                        """
-                    components.html(html_content1, height=600)
-                   
-                tabela_lead,space,tabela_medida= st.columns([2.3,0.2,2.7])
-                
-                with tabela_medida:
-                    st.markdown("""
-                    <div class="section-divider">
-                        <span>Medidas Corretivas</span>
-                    </div>
-                    """,unsafe_allow_html=True)
-                    ############################### GRAFICO MEDIDA #####################################
-                    grouped_data = filtered_df.groupby(['unidade', 'mddCorretSelecionada']).size().reset_index(name='Total')
-                    custom_greys = ['#F22771', '#05AFF2', '#2BD957', '#F29422', '#F24B4B']
-                    # Criar gráfico de barras empilhadas na horizontal
-                    fig = px.bar(
-                        grouped_data,
-                        x='unidade',
-                        y='Total',
-                        title='Medidas corretivas por Unidade',
-                        color='mddCorretSelecionada',
-                        labels={'unidade': 'Unidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
-                        text_auto=True,
-                        color_discrete_sequence=custom_greys   # Paleta de cinza
-                    )
-
-                    # Ajustar altura do gráfico
-                    fig.update_layout(
-                        height=500  # Define a altura do gráfico
-                    )
-
-                    # Exibir gráfico no Streamlit
-                    st.plotly_chart(fig, use_container_width=True)
-
-                    ############################### TABELA  MEDIDA #####################################
-
-                    ranking_medidas = (filtered_df.groupby('mddCorretSelecionada')['gravidadeMaxima'].size().reset_index(name='total_medidas'))
-                    ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
-                    ranking_medidas['ranking'] = ranking_medidas.index + 1
-
-                    html_content1 = f"""
-                        <body>
-                        <style>
-                        {css_carregado}
-                        </style>
-                            <div class="ranking-container">
-                                <div class="ranking-header">
-                                    Ranking de Medidas
-                                </div>
-                                <ul class="ranking-list">
-                    """            
-                    for  row in ranking_medidas.itertuples():
-                        html_content1 += f"""
-                            <li class="ranking-item">
-                                <span class="ranking-position">{row.ranking}º</span>
-                                <span class="city-name">{row.mddCorretSelecionada}</span>
-                                <span class="case-count">{row.total_medidas} Medidas</span>
-                            </li> 
-                        """
-                    html_content1 += """
-                                </ul>
-                            </div>
-                        </body>
-                        """
-                    components.html(html_content1, height=350)
-                with space:
-                    st.write("")    
- 
-                with tabela_lead:
-                    st.markdown("""
-                    <div class="section-divider">
-                        <span>Lead Time</span>
-                    </div>
-                    """,unsafe_allow_html=True)
-                    average_lead_time = filtered_df.groupby('unidade', as_index=False)['lead_time'].mean()
-                    average_lead_time = average_lead_time.sort_values(by='lead_time', ascending=True)
-
-                    # Criar o gráfico de barras horizontal com Plotly Express
-                
-                    fig = px.bar(
-                        average_lead_time,
-                        x='lead_time',
-                        y='unidade',
-                        orientation='h',  # Barras horizontais
-                        title='Média de Lead Time por Unidade (em dias)',
-                        labels={'lead_time_days': 'Média de Lead Time (dias)', 'unidade': 'Unidade'},
-                        text='lead_time',  # Exibe o valor nas barras
-                        color='lead_time',  # Mapear cores ao valor de lead_time_days
-                        color_continuous_scale=[[0, '#F29422'], [1, '#F24B4B']],
-                    )
-
-                    # Customizações
-                    fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')  # Formatação do texto
-                    fig.update_layout(
-                        xaxis_title='Média de Lead Time (dias)',
-                        yaxis_title='Unidade',
-                        xaxis=dict(showgrid=True),
-                        template='plotly_white' ,
-                        height=500 # Estilo do gráfico
-                    )
-
-                    # Mostrar o gráfico
-                    st.plotly_chart(fig, use_container_width=True)
-                    ranking_lead_time = (filtered_df.groupby('unidade', as_index=False)['lead_time'].mean().rename(columns={'lead_time': 'media_time'}))
-                    ranking_lead_time = (ranking_lead_time.sort_values(by='media_time', ascending=False).reset_index(drop=True))
-                  
-                    ranking_lead_time['ranking'] = ranking_lead_time.index + 1
-
-                    html_content1 = f"""
-                        <body>
-                        <style>
-                        {css_carregado}
-                        </style>
-                            <div class="ranking-container">
-                                <div class="ranking-header">
-                                    Ranking de Lead Time por Unidade (em dias)
-                                </div>
-                                <ul class="ranking-list">
-                    """            
-                    for  row in ranking_lead_time.itertuples():
-                        html_content1 += f"""
-                            <li class="ranking-item">
-                                <span class="ranking-position">{row.ranking}º</span>
-                                <span class="city-name">{row.unidade}</span>
-                                <span class="case-count">{row.media_time:.1f} dias</span>
-                            </li> 
-                        """
-                    html_content1 += """
-                                </ul>
-                            </div>
-                        </body>
-                        """
-                    components.html(html_content1, height=350)
-                                    
-                    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        with tabRegioes:
-            col1, col2 = st.columns(2)
-            with col1:
-                # regiao_count = filtered_df['regiaoUnidade'].value_counts().reset_index()
-                # regiao_count.columns = ['Região', 'Total']
-                # fig_regiao = px.bar(regiao_count, x='Região', y='Total', title='Processos por Região', color='Total', color_continuous_scale='rainbow')
-                # st.plotly_chart(fig_regiao, use_container_width=True)
-                st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Processos por região", unsafe_allow_html=True)
-                regiao_count = filtered_df['regiaoUnidade'].value_counts().reset_index()
-                regiao_count.columns = ['Região', 'Total']
-                fig_regiao = px.bar(
-                    regiao_count,
-                    x='Total',  # Total no eixo horizontal
-                    y='Região',  # Região no eixo vertical
-                    color='Total',  # Colorir as barras pelo total
-                    color_continuous_scale='rainbow',  # Escala de cores
-                    orientation='h'  # Orientação horizontal
-                )
-                st.plotly_chart(fig_regiao, use_container_width=True)
-            with col2:
-                    st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Região", unsafe_allow_html=True)
-                    irregularidade_por_cidade_df = filtered_df.groupby(
-                    ['regiaoUnidade', 'irregularidade', 'gravidadeMaxima']
-                    ).size().reset_index(name='Frequência')
-
-                    # Criar o gráfico de barras horizontais
-                    fig_irregularidade_barras_horizontais = px.bar(
-                        irregularidade_por_cidade_df,
-                        x='Frequência',  # Eixo X exibe a frequência
-                        y='regiaoUnidade',  # Eixo Y exibe as cidades (cidadeFato)
-                        color='gravidadeMaxima',  # Diferencia por gravidade máxima
-                        orientation='h',  # Orientação horizontal
-                        text='irregularidade',  # Exibe irregularidade como rótulo
-                        color_discrete_sequence=px.colors.sequential.RdBu  # Paleta de cores
-                    )
-                    fig_irregularidade_barras_horizontais.update_layout(
-                       
-                        xaxis_title='Total',
-                        yaxis_title='Região',
-                        legend_title='Gravidade Máxima',
-                        yaxis={'categoryorder': 'total ascending'}  # Ordenação opcional por frequência
-                    )
-                    st.plotly_chart(fig_irregularidade_barras_horizontais, use_container_width=True)
-                 
-               
-            # irregularidade_df = filtered_df.groupby(['irregularidade', 'gravidadeMaxima']).size().reset_index(name='Frequência')
-            # fig_irregularidade = px.pie(
-            #     irregularidade_df, 
-            #     names='gravidadeMaxima', 
-            #     values='Frequência', 
-            #     color='gravidadeMaxima',
-            #     color_discrete_sequence=px.colors.sequential.RdBu
+            # # Criar o mapa focado nas ocorrências
+            # fig_map = px.scatter_mapbox(
+            #     city_counts,
+            #     lat='latitude',
+            #     lon='longitude',
+            #     size='Total',
+            #     hover_name='Cidade',
+            #     color='Total',
+            #     zoom=zoom_level,
+            #     mapbox_style='open-street-map',
+            #     title='Sindicâncias por Cidade',
+            #     center={"lat": center_lat, "lon": center_lon}
             # )
-            # st.plotly_chart(fig_irregularidade, use_container_width=True) 
-           
+
+            # # Mostrar o mapa no Streamlit
+            # st.plotly_chart(fig_map, use_container_width=True)
+
+
+
+        with tabela_Unidades:
+            rankingUni = filtered_df.groupby('unidade').size().reset_index(name='num_sindicancias')
+            rankingUni =  rankingUni.sort_values(by='num_sindicancias', ascending=False).reset_index(drop=True)
+            rankingUni ['ranking'] = rankingUni.index + 1
+
+            html_content1 = f"""
+                <body>
+                <style>
+                {css_carregado}
+                </style>
+                    <div class="ranking-container ranking-green">
+                        <div class="ranking-header">
+                            Ranking de Unidades
+                        </div>
+                        <ul class="ranking-list">
+            """            
+            for  row in rankingUni.itertuples():
+                html_content1 += f"""
+                    <li class="ranking-item">
+                        <span class="ranking-position">{row.ranking}º</span>
+                        <span class="city-name">{row.unidade}</span>
+                        <span class="case-count">{row.num_sindicancias}</span>
+                    </li> 
+                """
+            html_content1 += """
+                        </ul>
+                    </div>
+                </body>
+                """
+            components.html(html_content1, height=570)
+            
+        st.markdown("""
+            <div class="section-divider">
+                <span>Gravidade e Irregularidades</span>
+            </div>
+            """,unsafe_allow_html=True)
+        tabela_irregula, gravidade, grafico_irregula = st.columns([2.1,0.8,1.6])
+        
+        with tabela_irregula:    
+            st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Unidade", unsafe_allow_html=True)
+            irregularidade_por_unidade_df = filtered_df.groupby(
+            ['unidade', 'irregularidade', 'gravidadeMaxima']
+            ).size().reset_index(name='Frequência')
+
+            # Criar o gráfico de barras horizontais
+            fig_irregularidade_barras_horizontais_Uni = px.bar(
+                irregularidade_por_unidade_df,
+                x='Frequência',  # Eixo X exibe a frequência
+                y='unidade',  # Eixo Y exibe as cidades (cidadeFato)
+                color='gravidadeMaxima',  # Diferencia por gravidade máxima
+                orientation='h',  # Orientação horizontal
+                text='irregularidade',  # Exibe irregularidade como rótulo
+                color_discrete_sequence=['#F22771', '#2BD957', '#F29422']   # Paleta de cores
+            )
+
+            # Configurar o layout do gráfico
+            fig_irregularidade_barras_horizontais_Uni.update_layout(
+                
+                xaxis_title='Total',
+                yaxis_title='Unidade',
+                legend_title='Gravidade Máxima',
+                yaxis={'categoryorder': 'total ascending'} ,
+                height=540  # Ordenação opcional por frequência
+            )
+            
+            # Exibir o gráfico na aplicação Streamlit
+            st.plotly_chart(fig_irregularidade_barras_horizontais_Uni, use_container_width=True)
+
+
+        with gravidade:
+            gravidade_total = len(filtered_df['gravidadeMaxima'])
+            gravidade_grave = filtered_df[filtered_df['gravidadeMaxima'] == 'Grave'].shape[0]
+            gravidade_mediana = filtered_df[filtered_df['gravidadeMaxima'] == 'Moderada'].shape[0]
+            gravidade_leve = filtered_df[filtered_df['gravidadeMaxima'] == 'Leve'].shape[0]
+            st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Gravidade", unsafe_allow_html=True)
+            st.markdown("""
+            <div class="metric">
+                <h3>Total</h3>
+                <h1>{}</h1>
+            </div>
+        """.format(gravidade_total ), unsafe_allow_html=True)
+            st.markdown("")
+            st.markdown("""
+            <div class="metric metric-pink">
+                <h3>Grave</h3>
+                <h1>{}</h1>
+            </div>
+        """.format(gravidade_grave), unsafe_allow_html=True)
+            st.markdown("")
+            st.markdown("""
+            <div class="metric metric-orange">
+                <h3>Mediana</h3>
+                <h1>{}</h1>
+            </div>
+        """.format(gravidade_mediana), unsafe_allow_html=True)
+            st.markdown("")
+            st.markdown("""
+            <div class="metric metric-green">
+                <h3>Leve</h3>
+                <h1>{}</h1>
+            </div>
+        """.format(gravidade_leve), unsafe_allow_html=True)
+                    
+        with grafico_irregula:   
+
+            ranking_cidades = (filtered_df.groupby('tbIrregularidade___1')['gravidadeMaxima'].size().reset_index(name='total_irregularidades'))
+            ranking_cidades = ranking_cidades.sort_values(by='total_irregularidades', ascending=False).reset_index(drop=True)
+            ranking_cidades['ranking'] = ranking_cidades.index + 1
+
+            html_content1 = f"""
+                <body>
+                <style>
+                {css_carregado}
+                </style>
+                    <div class="ranking-container">
+                        <div class="ranking-header">
+                            Ranking de Irregularidades
+                        </div>
+                        <ul class="ranking-list">
+            """            
+            for  row in ranking_cidades.itertuples():
+                html_content1 += f"""
+                    <li class="ranking-item">
+                        <span class="ranking-position">{row.ranking}º</span>
+                        <span class="city-name">{row.tbIrregularidade___1}</span>
+                        <span class="case-count">{row.total_irregularidades} </span>
+                    </li> 
+                """
+            html_content1 += """
+                        </ul>
+                    </div>
+                </body>r
+                """
+            components.html(html_content1, height=600)
+            
+        tabela_lead,space,tabela_medida= st.columns([2.3,0.2,2.7])
+        
+        with tabela_medida:
+            st.markdown("""
+            <div class="section-divider">
+                <span>Medidas Corretivas</span>
+            </div>
+            """,unsafe_allow_html=True)
+            ############################### GRAFICO MEDIDA #####################################
+            grouped_data = filtered_df.groupby(['unidade', 'mddCorretSelecionada']).size().reset_index(name='Total')
+            custom_greys = ['#F22771', '#05AFF2', '#2BD957', '#F29422', '#F24B4B']
+            # Criar gráfico de barras empilhadas na horizontal
+            fig = px.bar(
+                grouped_data,
+                x='unidade',
+                y='Total',
+                title='Medidas corretivas por Unidade',
+                color='mddCorretSelecionada',
+                labels={'unidade': 'Unidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
+                text_auto=True,
+                color_discrete_sequence=custom_greys   # Paleta de cinza
+            )
+
+            # Ajustar altura do gráfico
+            fig.update_layout(
+                height=500  # Define a altura do gráfico
+            )
+
+            # Exibir gráfico no Streamlit
+            st.plotly_chart(fig, use_container_width=True)
+
+            ############################### TABELA  MEDIDA #####################################
+
+            ranking_medidas = (filtered_df.groupby('mddCorretSelecionada')['gravidadeMaxima'].size().reset_index(name='total_medidas'))
+            ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
+            ranking_medidas['ranking'] = ranking_medidas.index + 1
+
+            html_content1 = f"""
+                <body>
+                <style>
+                {css_carregado}
+                </style>
+                    <div class="ranking-container">
+                        <div class="ranking-header">
+                            Ranking de Medidas
+                        </div>
+                        <ul class="ranking-list">
+            """            
+            for  row in ranking_medidas.itertuples():
+                html_content1 += f"""
+                    <li class="ranking-item">
+                        <span class="ranking-position">{row.ranking}º</span>
+                        <span class="city-name">{row.mddCorretSelecionada}</span>
+                        <span class="case-count">{row.total_medidas} Medidas</span>
+                    </li> 
+                """
+            html_content1 += """
+                        </ul>
+                    </div>
+                </body>
+                """
+            components.html(html_content1, height=350)
+        with space:
+            st.write("")    
+
+        with tabela_lead:
+            st.markdown("""
+            <div class="section-divider">
+                <span>Lead Time</span>
+            </div>
+            """,unsafe_allow_html=True)
+            average_lead_time = filtered_df.groupby('unidade', as_index=False)['lead_time'].mean()
+            average_lead_time = average_lead_time.sort_values(by='lead_time', ascending=True)
+
+            # Criar o gráfico de barras horizontal com Plotly Express
+        
+            fig = px.bar(
+                average_lead_time,
+                x='lead_time',
+                y='unidade',
+                orientation='h',  # Barras horizontais
+                title='Média de Lead Time por Unidade (em dias)',
+                labels={'lead_time_days': 'Média de Lead Time (dias)', 'unidade': 'Unidade'},
+                text='lead_time',  # Exibe o valor nas barras
+                color='lead_time',  # Mapear cores ao valor de lead_time_days
+                color_continuous_scale=[[0, '#F29422'], [1, '#F24B4B']],
+            )
+
+            # Customizações
+            fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')  # Formatação do texto
+            fig.update_layout(
+                xaxis_title='Média de Lead Time (dias)',
+                yaxis_title='Unidade',
+                xaxis=dict(showgrid=True),
+                template='plotly_white' ,
+                height=500 # Estilo do gráfico
+            )
+
+            # Mostrar o gráfico
+            st.plotly_chart(fig, use_container_width=True)
+            ranking_lead_time = (filtered_df.groupby('unidade', as_index=False)['lead_time'].mean().rename(columns={'lead_time': 'media_time'}))
+            ranking_lead_time = (ranking_lead_time.sort_values(by='media_time', ascending=False).reset_index(drop=True))
+            
+            ranking_lead_time['ranking'] = ranking_lead_time.index + 1
+
+            html_content1 = f"""
+                <body>
+                <style>
+                {css_carregado}
+                </style>
+                    <div class="ranking-container">
+                        <div class="ranking-header">
+                            Ranking de Lead Time por Unidade (em dias)
+                        </div>
+                        <ul class="ranking-list">
+            """            
+            for  row in ranking_lead_time.itertuples():
+                html_content1 += f"""
+                    <li class="ranking-item">
+                        <span class="ranking-position">{row.ranking}º</span>
+                        <span class="city-name">{row.unidade}</span>
+                        <span class="case-count">{row.media_time:.1f} dias</span>
+                    </li> 
+                """
+            html_content1 += """
+                        </ul>
+                    </div>
+                </body>
+                """
+            components.html(html_content1, height=350)
+                            
+# with tabRegioes:
+#     col1, col2 = st.columns(2)
+#     with col1:
+#         # regiao_count = filtered_df['regiaoUnidade'].value_counts().reset_index()
+#         # regiao_count.columns = ['Região', 'Total']
+#         # fig_regiao = px.bar(regiao_count, x='Região', y='Total', title='Processos por Região', color='Total', color_continuous_scale='rainbow')
+#         # st.plotly_chart(fig_regiao, use_container_width=True)
+#         st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Processos por região", unsafe_allow_html=True)
+#         regiao_count = filtered_df['regiaoUnidade'].value_counts().reset_index()
+#         regiao_count.columns = ['Região', 'Total']
+#         fig_regiao = px.bar(
+#             regiao_count,
+#             x='Total',  # Total no eixo horizontal
+#             y='Região',  # Região no eixo vertical
+#             color='Total',  # Colorir as barras pelo total
+#             color_continuous_scale='rainbow',  # Escala de cores
+#             orientation='h'  # Orientação horizontal
+#         )
+#         st.plotly_chart(fig_regiao, use_container_width=True)
+#     with col2:
+#             st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Irregularidades por Região", unsafe_allow_html=True)
+#             irregularidade_por_cidade_df = filtered_df.groupby(
+#             ['regiaoUnidade', 'irregularidade', 'gravidadeMaxima']
+#             ).size().reset_index(name='Frequência')
+
+#             # Criar o gráfico de barras horizontais
+#             fig_irregularidade_barras_horizontais = px.bar(
+#                 irregularidade_por_cidade_df,
+#                 x='Frequência',  # Eixo X exibe a frequência
+#                 y='regiaoUnidade',  # Eixo Y exibe as cidades (cidadeFato)
+#                 color='gravidadeMaxima',  # Diferencia por gravidade máxima
+#                 orientation='h',  # Orientação horizontal
+#                 text='irregularidade',  # Exibe irregularidade como rótulo
+#                 color_discrete_sequence=px.colors.sequential.RdBu  # Paleta de cores
+#             )
+#             fig_irregularidade_barras_horizontais.update_layout(
+                
+#                 xaxis_title='Total',
+#                 yaxis_title='Região',
+#                 legend_title='Gravidade Máxima',
+#                 yaxis={'categoryorder': 'total ascending'}  # Ordenação opcional por frequência
+#             )
+#             st.plotly_chart(fig_irregularidade_barras_horizontais, use_container_width=True)
+            
+        
+    # irregularidade_df = filtered_df.groupby(['irregularidade', 'gravidadeMaxima']).size().reset_index(name='Frequência')
+    # fig_irregularidade = px.pie(
+    #     irregularidade_df, 
+    #     names='gravidadeMaxima', 
+    #     values='Frequência', 
+    #     color='gravidadeMaxima',
+    #     color_discrete_sequence=px.colors.sequential.RdBu
+    # )
+    # st.plotly_chart(fig_irregularidade, use_container_width=True) 
     
 
 
-            
-            # fig_sla = px.pie(filtered_df, names='slaStatus', title='Processos por Status do SLA', color_discrete_sequence=px.colors.sequential.RdBu)
-            # st.plotly_chart(fig_sla, use_container_width=True)
-            # irregularidade_df = filtered_df.groupby(['irregularidade', 'gravidadeMaxima']).size().reset_index(name='Frequência')
 
-                # Criar gráfico de barras horizontal
-            # st.markdown("<p style='color:#bb2e2eb7;font-size:17px;font-weight: bold;'>Status dos Motoristas Ativos", unsafe_allow_html=True)
-            # fig_status = px.pie(
-            #     filtered_df, 
-            #     names='status', 
-            #     color_discrete_sequence=px.colors.sequential.RdBu
-            # ) 
+    
+    # fig_sla = px.pie(filtered_df, names='slaStatus', title='Processos por Status do SLA', color_discrete_sequence=px.colors.sequential.RdBu)
+    # st.plotly_chart(fig_sla, use_container_width=True)
+    # irregularidade_df = filtered_df.groupby(['irregularidade', 'gravidadeMaxima']).size().reset_index(name='Frequência')
 
-            # # Ajustar layout para reduzir áreas brancas
-            # fig_status.update_layout(
-            #         margin=dict(t=15, b=15),  # Ajusta margens superior, inferior, esquerda e direita
-            #         height=250
-            #     )
+        # Criar gráfico de barras horizontal
+    # st.markdown("<p style='color:#bb2e2eb7;font-size:17px;font-weight: bold;'>Status dos Motoristas Ativos", unsafe_allow_html=True)
+    # fig_status = px.pie(
+    #     filtered_df, 
+    #     names='status', 
+    #     color_discrete_sequence=px.colors.sequential.RdBu
+    # ) 
 
-            #     # Exibir no Streamlit
-            # st.plotly_chart(fig_status, use_container_width=True)
-            st.markdown("---")
+    # # Ajustar layout para reduzir áreas brancas
+    # fig_status.update_layout(
+    #         margin=dict(t=15, b=15),  # Ajusta margens superior, inferior, esquerda e direita
+    #         height=250
+    #     )
 
-
-
+    #     # Exibir no Streamlit
+    # st.plotly_chart(fig_status, use_container_width=True)
+    
 
 
 
@@ -1072,89 +1063,91 @@ if data is not None:
 
 
 
-        # # Gráficos adicionais
-        # tab1, tab2, tab3 = st.tabs(["Cidades", "Unidades", "Regiões"])
 
-        # with tab1:
-        #     cidade_count = filtered_df['cidadeFato'].value_counts().reset_index()
-        #     cidade_count.columns = ['Cidade', 'Total']
-        #     fig_cidade = px.bar(cidade_count, x='Cidade', y='Total', title='Processos por Cidade', color='Total', color_continuous_scale='rainbow')
-        #     st.plotly_chart(fig_cidade, use_container_width=True)
 
-        # with tab2:
-        #     unidade_count = filtered_df['unidade'].value_counts().reset_index()
-        #     unidade_count.columns = ['Unidade', 'Total']
-        #     fig_unidade = px.bar(unidade_count, x='Unidade', y='Total', title='Processos por Unidade', color='Total', color_continuous_scale='rainbow')
-        #     st.plotly_chart(fig_unidade, use_container_width=True)
 
-        # with tab3:
-        #     regiao_count = filtered_df['regiaoUnidade'].value_counts().reset_index()
-        #     regiao_count.columns = ['Região', 'Total']
-        #     fig_regiao = px.bar(regiao_count, x='Região', y='Total', title='Processos por Região', color='Total', color_continuous_scale='rainbow')
-        #     st.plotly_chart(fig_regiao, use_container_width=True)
+# # Gráficos adicionais
+# tab1, tab2, tab3 = st.tabs(["Cidades", "Unidades", "Regiões"])
 
-        # 5. Painel de Irregularidades e Gravidades
+# with tab1:
+#     cidade_count = filtered_df['cidadeFato'].value_counts().reset_index()
+#     cidade_count.columns = ['Cidade', 'Total']
+#     fig_cidade = px.bar(cidade_count, x='Cidade', y='Total', title='Processos por Cidade', color='Total', color_continuous_scale='rainbow')
+#     st.plotly_chart(fig_cidade, use_container_width=True)
 
-        # st.header("Painel de Irregularidades e Gravidades")
+# with tab2:
+#     unidade_count = filtered_df['unidade'].value_counts().reset_index()
+#     unidade_count.columns = ['Unidade', 'Total']
+#     fig_unidade = px.bar(unidade_count, x='Unidade', y='Total', title='Processos por Unidade', color='Total', color_continuous_scale='rainbow')
+#     st.plotly_chart(fig_unidade, use_container_width=True)
 
-        # irregularidade_df = filtered_df.groupby(['irregularidade', 'gravidadeMaxima']).size().reset_index(name='Frequência')
-        # fig_irregularidade = px.bar(irregularidade_df, x='irregularidade', y='Frequência', color='gravidadeMaxima', barmode='group', title='Irregularidades por Tipo e Gravidade')
-        # st.plotly_chart(fig_irregularidade, use_container_width=True)
+# with tab3:
+#     regiao_count = filtered_df['regiaoUnidade'].value_counts().reset_index()
+#     regiao_count.columns = ['Região', 'Total']
+#     fig_regiao = px.bar(regiao_count, x='Região', y='Total', title='Processos por Região', color='Total', color_continuous_scale='rainbow')
+#     st.plotly_chart(fig_regiao, use_container_width=True)
 
-        # # Tabela dinâmica
-        # st.subheader("Tabela de Frequência de Irregularidades")
-        # tabela_irregularidades = irregularidade_df.pivot_table(values='Frequência', index='irregularidade', columns='gravidadeMaxima', fill_value=0)
-        # st.dataframe(tabela_irregularidades.style.highlight_max(axis=0, color='lightblue'))
+# 5. Painel de Irregularidades e Gravidades
 
-        # # 6. Painel de Investigados e Resultados
-        # st.markdown("---")
-        # st.header("Painel de Investigados e Resultados")
+# st.header("Painel de Irregularidades e Gravidades")
 
-        # Tabela com todos os principais dados das sindicâncias
-        st.markdown("""
-                    <div class="section-divider">
-                        <span>Detalhamento de uma Sindicância Específica</span>
-                    </div>
-                    """,unsafe_allow_html=True)
-        # Selecionar um processo específico
-        processos_disponiveis = filtered_df['processInstanceId'].unique()
-        processo_selecionado = st.selectbox("Selecione o ID do Processo", processos_disponiveis)
+# irregularidade_df = filtered_df.groupby(['irregularidade', 'gravidadeMaxima']).size().reset_index(name='Frequência')
+# fig_irregularidade = px.bar(irregularidade_df, x='irregularidade', y='Frequência', color='gravidadeMaxima', barmode='group', title='Irregularidades por Tipo e Gravidade')
+# st.plotly_chart(fig_irregularidade, use_container_width=True)
 
-        # Obter os dados do processo selecionado
-        dados_processo = filtered_df[filtered_df['processInstanceId'] == processo_selecionado].iloc[0]
+# # Tabela dinâmica
+# st.subheader("Tabela de Frequência de Irregularidades")
+# tabela_irregularidades = irregularidade_df.pivot_table(values='Frequência', index='irregularidade', columns='gravidadeMaxima', fill_value=0)
+# st.dataframe(tabela_irregularidades.style.highlight_max(axis=0, color='lightblue'))
 
-        # Exibir os dados de forma organizada
-        st.markdown(f"### Dados do Processo {processo_selecionado}")
+# # 6. Painel de Investigados e Resultados
+# st.markdown("---")
+# st.header("Painel de Investigados e Resultados")
 
-        st.markdown(f"""
-    <div class="containerum">
-        <div class="box">
-            <h3>Informações Gerais</h3>
-            <p><strong>Data Início:</strong> {dados_processo['startDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['startDate']) else 'N/A'}</p>
-            <p><strong>Data Fim:</strong> {dados_processo['endDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['endDate']) else 'N/A'}</p>
-            <p><strong>Lead Time:</strong> {dados_processo['lead_time']:.3f} dias</p>
-            <p><strong>Status:</strong> {dados_processo['status']}</p>
-            <p><strong>Status SLA:</strong> {dados_processo['slaStatus']}</p>
-            <p><strong>Unidade:</strong> {dados_processo['unidade']}</p>
-            <p><strong>Cidade:</strong> {dados_processo['cidadeFato']}</p>
-            <p><strong>Região:</strong> {dados_processo['regiaoUnidade']}</p>
-        </div>
-        <div class="box">
-            <h3>Detalhes do Caso</h3>
-            <p><strong>Irregularidade:</strong> {dados_processo['tbIrregularidade___1']}</p>
-            <p><strong>Gravidade:</strong> {dados_processo['gravidadeMaxima']}</p>
-            <p><strong>Investigado:</strong> {dados_processo['nmInvestigado']}</p>
-            <p><strong>Solicitante:</strong> {dados_processo['solicitante']}</p>
-            <p><strong>Prejuízo Financeiro:</strong> R${dados_processo['prejFinanc']:.2f} </p>
-            <p><strong>Descrição do Fato:</strong> {dados_processo['descFato']}</p>
-        </div>
-    </div>
-    <div class="conclusao">
-        <h4>Conclusão</h4>
-        <p>{dados_processo['conclusao']}</p>
-    </div>
+# Tabela com todos os principais dados das sindicâncias
+st.markdown("""
+            <div class="section-divider">
+                <span>Detalhamento de uma Sindicância Específica</span>
+            </div>
+            """,unsafe_allow_html=True)
+# Selecionar um processo específico
+processos_disponiveis = filtered_df['processInstanceId'].unique()
+processo_selecionado = st.selectbox("Selecione o ID do Processo", processos_disponiveis)
+
+# Obter os dados do processo selecionado
+dados_processo = filtered_df[filtered_df['processInstanceId'] == processo_selecionado].iloc[0]
+
+# Exibir os dados de forma organizada
+st.markdown(f"### Dados do Processo {processo_selecionado}")
+
+st.markdown(f"""
+<div class="containerum">
+<div class="box">
+    <h3>Informações Gerais</h3>
+    <p><strong>Data Início:</strong> {dados_processo['startDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['startDate']) else 'N/A'}</p>
+    <p><strong>Data Fim:</strong> {dados_processo['endDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['endDate']) else 'N/A'}</p>
+    <p><strong>Lead Time:</strong> {dados_processo['lead_time']:.3f} dias</p>
+    <p><strong>Status:</strong> {dados_processo['status']}</p>
+    <p><strong>Status SLA:</strong> {dados_processo['slaStatus']}</p>
+    <p><strong>Unidade:</strong> {dados_processo['unidade']}</p>
+    <p><strong>Cidade:</strong> {dados_processo['cidadeFato']}</p>
+    <p><strong>Região:</strong> {dados_processo['regiaoUnidade']}</p>
+</div>
+<div class="box">
+    <h3>Detalhes do Caso</h3>
+    <p><strong>Irregularidade:</strong> {dados_processo['tbIrregularidade___1']}</p>
+    <p><strong>Gravidade:</strong> {dados_processo['gravidadeMaxima']}</p>
+    <p><strong>Investigado:</strong> {dados_processo['nmInvestigado']}</p>
+    <p><strong>Solicitante:</strong> {dados_processo['solicitante']}</p>
+    <p><strong>Prejuízo Financeiro:</strong> R${dados_processo['prejFinanc']:.2f} </p>
+    <p><strong>Descrição do Fato:</strong> {dados_processo['descFato']}</p>
+</div>
+</div>
+<div class="conclusao">
+<h4>Conclusão</h4>
+<p>{dados_processo['conclusao']}</p>
+</div>
 """, unsafe_allow_html=True)
-        
 
 
 
@@ -1165,24 +1158,25 @@ if data is not None:
 
 
 
-        st.subheader("Detalhamento das Sindicâncias")
-        # Selecionar colunas relevantes
-        cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'cidadeFato', 'unidade', 'regiaoUnidade', 'tbIrregularidade___1', 'gravidadeMaxima', 'nmInvestigado', 'solicitante', 'conclusao', 'prejFinanc']
-        tabela_sindicancias = filtered_df[cols_relevantes].copy()
-        tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Lead Time', 'Status', 'Status SLA', 'Cidade', 'Unidade', 'Região', 'Irregularidade', 'Gravidade', 'Investigado', 'Solicitante', 'Conclusão', 'Prejuízo Financeiro']
 
-        # Definir função personalizada para formatar datas
-        def format_date(x):
-            return x.strftime('%d/%m/%Y') if pd.notnull(x) else ''
+st.subheader("Detalhamento das Sindicâncias")
+# Selecionar colunas relevantes
+cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'cidadeFato', 'unidade', 'regiaoUnidade', 'tbIrregularidade___1', 'gravidadeMaxima', 'nmInvestigado', 'solicitante', 'conclusao', 'prejFinanc']
+tabela_sindicancias = filtered_df[cols_relevantes].copy()
+tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Lead Time', 'Status', 'Status SLA', 'Cidade', 'Unidade', 'Região', 'Irregularidade', 'Gravidade', 'Investigado', 'Solicitante', 'Conclusão', 'Prejuízo Financeiro']
 
-        # Exibir tabela com formatação
-        st.dataframe(tabela_sindicancias.style.format({
-            'Data Início': format_date,
-            'Data Fim': format_date,
-            'Prejuízo Financeiro': 'R${:,.2f}'
-        }))
-        # 7. Novo Painel para Visualização Detalhada de uma Sindicância
- 
+# Definir função personalizada para formatar datas
+def format_date(x):
+    return x.strftime('%d/%m/%Y') if pd.notnull(x) else ''
+
+# Exibir tabela com formatação
+st.dataframe(tabela_sindicancias.style.format({
+    'Data Início': format_date,
+    'Data Fim': format_date,
+    'Prejuízo Financeiro': 'R${:,.2f}'
+}))
+# 7. Novo Painel para Visualização Detalhada de uma Sindicância
+
   
    
 
