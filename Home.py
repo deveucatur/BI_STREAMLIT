@@ -76,7 +76,6 @@ with col2:
             'Password':'Senha', 
             'Login':'Entrar'
             })
-st.write(name)
 
 if authentication_status == False:
     with col2:

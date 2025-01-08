@@ -18,7 +18,10 @@ from util import cabEscala, sideBar
 import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 import streamlit_authenticator as stauth
-from conexao import conexaoBD
+import yaml
+from yaml.loader import SafeLoader
+
+
 
 
 
@@ -37,60 +40,26 @@ def carregar_css(file_name):
 css_carregado = carregar_css("style.css")
 local_css("style.css")
 cabEscala()
-conexao = conexaoBD()
-
-mycursor = conexao.cursor()
-setSession = "SET SESSION group_concat_max_len = 5000;"
-mycursor.execute(setSession)
-
-comandUSERS = """SELECT 
-        projeu_users.*,
-        (
-            SELECT
-                macroprocesso
-            FROM 
-                projeu_macropr
-            WHERE 
-                id = projeu_users.macroprocesso_fgkey
-        ) 
-    FROM 
-        projeu_users 
-    WHERE 
-        perfil_proj IN ("A", "GV", "AS", "L");"""
-mycursor.execute(comandUSERS)
-dadosUser = mycursor.fetchall()
-mycursor.close()
 
 
-names = [x[2] for x in dadosUser]
 
-usernames = [x[3] for x in dadosUser]
-hashed_passwords = [x[7] for x in dadosUser]
+with open('main.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
 
-def convert_to_dict(names, usernames, passwords):
-    credentials = {"usernames": {}}
-    for name, username, password in zip(names, usernames, passwords):
-        user_credentials = {
-            "email":username,
-            "name": name,
-            "password": password
-        }
-        credentials["usernames"][username] = user_credentials
-    return credentials
-
-credentials = convert_to_dict(names, usernames, hashed_passwords)
-authenticator = stauth.Authenticate(credentials, "Teste", "abcde", cookie_expiry_days=30)
+    authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
 
 col1, col2,col3 = st.columns([1,3,1])
 with col2:
-    name, authentication_status, username = authenticator.login(
-        location='main', fields={
+    authentication_status= authenticator.login(
+         fields={
             'Form name':'Acessar BI sindicancia',
-            'Username':'Login', 
-            'Password':'Senha', 
-            'Login':'Entrar'
             })
-st.write(name)
+
 
 if authentication_status == False:
     with col2:
@@ -101,7 +70,7 @@ elif authentication_status == None:
 else:
     authenticator.logout('Logout', 'sidebar') 
 
-# Função para carregar dados da API
+        # Função para carregar dados da API
     @st.cache_data(ttl=600)
     def load_data_from_api():
         load_dotenv()
