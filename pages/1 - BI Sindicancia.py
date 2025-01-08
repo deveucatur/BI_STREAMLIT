@@ -142,8 +142,11 @@ if data is not None:
                     return 'Orientação Disciplinar'
                 elif 'Advertência Escrita' in suspensao:
                     return 'Advertência Escrita'
-            
-            return suspensao 
+                elif 'Desligamento (Justa Causa) - Desligamento (Justa Causa)' in suspensao:
+                    return 'Desligamento (Justa Causa)'
+                
+            return suspensao
+         
         def padronizar_irregularidade(irregularidade):
         
             if isinstance(irregularidade, str):
@@ -370,7 +373,7 @@ if data is not None:
                         <h3>Média de Lead Time</h3>
                         <h1>{:.2f}</h1>
                     </div>
-                """.format(status_lead ), unsafe_allow_html=True)     
+                """.format(status_lead), unsafe_allow_html=True)     
         # Gráficos organizados
         
        
@@ -853,7 +856,7 @@ if data is not None:
             """,unsafe_allow_html=True)
             ############################### GRAFICO MEDIDA #####################################
             grouped_data = filtered_df.groupby(['unidade', 'mddCorretSelecionada']).size().reset_index(name='Total')
-            custom_greys = ['#F22771', '#05AFF2', '#2BD957', '#F29422', '#F24B4B']
+            custom_greys = ['#F22771', '#05AFF2', '#2BD957', '#F29422', '#F24B4B','#A316F5']
             # Criar gráfico de barras empilhadas na horizontal
             fig = px.bar(
                 grouped_data,
@@ -904,7 +907,7 @@ if data is not None:
                     </div>
                 </body>
                 """
-            components.html(html_content1, height=350)
+            components.html(html_content1, height=370)
         with space:
             st.write("")    
 
@@ -972,7 +975,7 @@ if data is not None:
                     </div>
                 </body>
                 """
-            components.html(html_content1, height=350)
+            components.html(html_content1, height=370)
                             
 # with tabRegioes:
 #     col1, col2 = st.columns(2)
