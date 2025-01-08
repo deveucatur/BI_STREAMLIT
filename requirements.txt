@@ -8,4 +8,4 @@ requests-oauthlib
 python-dotenv
 geopy
 streamlit-authenticator==0.3.1
-mysql-connector-python
+mysql-connector-python==8.3.0
