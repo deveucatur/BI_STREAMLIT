@@ -907,7 +907,7 @@ if data is not None:
                     </div>
                 </body>
                 """
-            components.html(html_content1, height=370)
+            components.html(html_content1, height=390)
         with space:
             st.write("")    
 
@@ -975,7 +975,7 @@ if data is not None:
                     </div>
                 </body>
                 """
-            components.html(html_content1, height=370)
+            components.html(html_content1, height=500)
                             
 # with tabRegioes:
 #     col1, col2 = st.columns(2)
