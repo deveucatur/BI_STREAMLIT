@@ -7,3 +7,4 @@ requests
 requests-oauthlib
 python-dotenv
 geopy
+streamlit-authenticator==0.3.1
