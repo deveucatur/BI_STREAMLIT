@@ -43,37 +43,45 @@ cabEscala()
 
 
 
-with open('main.yaml') as file:
-    config = yaml.safe_load(file)
 
-# Inicializar o autenticador
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
+names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros']
+usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com']
+hashed_passwords = ['admin','admin','admin']
 
-# Layout das colunas
-col1, col2, col3 = st.columns([1, 3, 1])
+def convert_to_dict(names, usernames, passwords):
+    credentials = {"usernames": {}}
+    for name, username, password in zip(names, usernames, passwords):
+        user_credentials = {
+            "email":username,
+            "name": name,
+            "password": password
+        }
+        credentials["usernames"][username] = user_credentials
+    return credentials
 
+credentials = convert_to_dict(names, usernames, hashed_passwords)
+authenticator = stauth.Authenticate(credentials, "Teste", "abcde", cookie_expiry_days=30)
+
+col1, col2,col3 = st.columns([1,3,1])
 with col2:
-    authentication_status = authenticator.login(location='main', fields={
-        'Form name': 'Acessar BI sindicancia',
-        'Username': 'Login',
-        'Password': 'Senha',
-        'Login': 'Entrar'
-    })
+    name, authentication_status, username = authenticator.login(
+        location='main', fields={
+            'Form name':'Acessar BI sindicancia',
+            'Username':'Login', 
+            'Password':'Senha', 
+            'Login':'Entrar'
+            })
 
-# Exibir mensagens de autenticação
-if authentication_status is False:
+
+if authentication_status == False:
     with col2:
         st.error('Email ou Senha Incorreto')
-elif authentication_status is None:
+elif authentication_status == None:
     with col2:
         st.warning('Insira seu Email e Senha')
 else:
-    authenticator.logout('Logout', 'sidebar')
+    authenticator.logout('Logout', 'sidebar') 
+    
 
         # Função para carregar dados da API
     @st.cache_data(ttl=600)
