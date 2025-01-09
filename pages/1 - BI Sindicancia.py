@@ -44,9 +44,9 @@ cabEscala()
 
 
 
-names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros']
+names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros', 'Juliano.Marca']
 usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com']
-hashed_passwords = ['admin','admin','admin']
+hashed_passwords = ['admin','admin','admin','admin']
 
 def convert_to_dict(names, usernames, passwords):
     credentials = {"usernames": {}}

@@ -10,6 +10,7 @@ local_css("style.css")
 def sideBar():
     st.sidebar.page_link("Home.py")
     st.sidebar.page_link("pages/1 - BI Sindicancia.py")
+    st.sidebar.page_link("pages/1 - BI Pagamentos.py")
     
 def cabEscala():
     st.markdown(""" 
