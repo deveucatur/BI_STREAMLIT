@@ -12,13 +12,13 @@ def sideBar():
     st.sidebar.page_link("pages/1 - BI Sindicancia.py")
     st.sidebar.page_link("pages/1 - BI Pagamentos.py")
     
-def cabEscala():
+def cabEscala(nome):
     st.markdown(""" 
     <div class="topo">
         <div class="logo">
             <img src="https://raw.githubusercontent.com/deveucatur/BI_STREAMLIT/main/src/Logomarca%20ADP%20Vs2.png" >
-            <span>BI Sindicância</span>
+            <span>{}</span>
         </div>
     </div>
 """  
-   , unsafe_allow_html=True)
+   .format(nome), unsafe_allow_html=True)

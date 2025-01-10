@@ -57,5 +57,7 @@ def carregar_css(file_name):
         return f.read()        
 css_carregado = carregar_css("style.css")
 local_css("style.css")
-cabEscala()
+menu_menu = "Home"
+menu = cabEscala(menu_menu)
+
 

@@ -39,7 +39,8 @@ def carregar_css(file_name):
 # Aplicar o CSS personalizado
 css_carregado = carregar_css("style.css")
 local_css("style.css")
-cabEscala()
+menu_menu = "BI Sindicancia"
+menu = cabEscala(menu_menu)
 
 
 
@@ -1198,15 +1199,6 @@ else:
     <p>{dados_processo['conclusao']}</p>
     </div>
     """, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
 
 
     st.subheader("Detalhamento das Sindicâncias")

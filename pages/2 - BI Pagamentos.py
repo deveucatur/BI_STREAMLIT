@@ -39,14 +39,15 @@ def carregar_css(file_name):
 # Aplicar o CSS personalizado
 css_carregado = carregar_css("stylesPag.css")
 local_css("stylesPag.css")
-cabEscala()
+menu_menu = "BI Pagamentos"
+menu = cabEscala(menu_menu)
 
 
 
 
-names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros']
-usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com']
-hashed_passwords = ['admin','admin','admin']
+names = ['Victor Silva']
+usernames = ['pedrotivictor712@gmail.com']
+hashed_passwords = ['admin']
 
 def convert_to_dict(names, usernames, passwords):
     credentials = {"usernames": {}}
@@ -66,7 +67,7 @@ col1, col2,col3 = st.columns([1,3,1])
 with col2:
     name, authentication_status, username = authenticator.login(
         location='main', fields={
-            'Form name':'Acessar BI sindicancia',
+            'Form name':'Acessar BI Pagamentos',
             'Username':'Login', 
             'Password':'Senha', 
             'Login':'Entrar'
@@ -157,7 +158,7 @@ else:
             df['lead_time'] = ((df['endDate'].fillna(datetime.now()) - df['startDate']).dt.total_seconds() / 3600) / 24 
             df['status'] = df['status'].str.lower().map({'open': 'Aberto', 'finalized': 'Finalizado'}) 
             df['slaStatus'] = df['slaStatus'].str.lower().map({'on_time': 'No Prazo', 'overdue': 'Em Atraso'})
-            st.write(df)
+            
             with st.expander("Filtros"):
                 
 
@@ -188,7 +189,7 @@ else:
                 
                 colsta6, colsta7,colsta8 = st.columns(3)
                 with colsta6:
-                    medida_filter = multiselect_with_all("Medida Corretiva", df['tpPagamento'].dropna().unique())
+                    tp_filter = multiselect_with_all("Tipo de Pagamento", df['tpPagamento'].dropna().unique())
                 with colsta7:
                     start_date_default  = df['startDate'].min().date() 
                     end_date_default = datetime.today().date()    
@@ -197,7 +198,7 @@ else:
                 with colsta8:
                 
                     end_date = st.date_input("Data Final",end_date_default)
-                    
+                
                 #irregularidade_filter = multiselect_with_all("Irregularidade", df['irregularidade'].dropna().unique())
                 
                 #investigado_filter = multiselect_with_all("Investigado", df['nmInvestigado'].dropna().unique()) 
@@ -217,17 +218,269 @@ else:
             filtered_df = df[
                 (df['status'].isin(status_filter)) &
                 (df['slaStatus'].isin(sla_filter)) &
-                #(df['cidadeFato'].isin(cidade_filter)) &
-                (df['unidade'].isin(unidade_filter)) &
-                #(df['regiaoUnidade'].isin(regiao_filter)) &
-                (df['mddCorretSelecionada'].isin(medida_filter)) &
-                #(df['irregularidade'].isin(irregularidade_filter)) &
-                #(df['gravidadeMaxima'].isin(gravidade_filter)) &
-                #(df['nmInvestigado'].isin(investigado_filter)) &
-                (df['solicitante'].isin(solicitante_filter)) &
+                (df['tpPagamento'].isin(tp_filter)) &
+                (df['nomeSolicitante'].isin(solicitante_filter)) &
+                (df['unidadeSolicitante'].isin(unidade_filter)) &
+                (df['empresaPagamento'].isin(empresa_filter)) &
                 (df['startDate'] >= pd.Timestamp(start_date)) &
                 (
                 (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
                 (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
                 )
             ]
+            col1, col2, col3, col4,col5,col6 = st.columns(6)
+            total_processos = len(filtered_df)
+            status_finalizado = filtered_df[filtered_df['status'] == 'Finalizado'].shape[0]
+            status_aberto = filtered_df[filtered_df['status'] == 'Aberto'].shape[0]
+            status_lead =   filtered_df['lead_time'].mean()
+            status_aprovado = filtered_df[filtered_df['aprovarSolic'] == 'aprovado'].shape[0]
+            filtered_df.to_csv("arquivo.csv", index=False)
+            
+            with col1:
+                st.markdown("""
+                <div class="card">
+                    <h3>Total de Processos</h3>
+                    <h1>{}</h1>
+                </div>
+            """.format( total_processos), unsafe_allow_html=True)
+
+            with col2:
+                    st.markdown("""
+                        <div class="card">
+                            <h3>Processos Finalizados</h3>
+                            <h1>{}</h1>
+                        </div>
+                    """.format(status_finalizado), unsafe_allow_html=True)
+            with col3:
+                    st.markdown("""
+                        <div class="card">
+                            <h3>Processos Abertos</h3>
+                            <h1>{}</h1>
+                        </div>
+                    """.format(status_aberto), unsafe_allow_html=True)
+
+            with col4:
+                    st.markdown("""
+                        <div class="card">
+                            <h3>Processos no Prazo</h3>
+                            <h1>{}</h1>
+                        </div>
+                    """.format(status_aprovado), unsafe_allow_html=True)
+            with col5:
+                    st.markdown("""
+                        <div class="card">
+                            <h3>Processos Aprovados</h3>
+                            <h1>{}</h1>
+                        </div>
+                    """.format(status_aprovado), unsafe_allow_html=True)     
+            with col6:
+                st.markdown("""
+                        <div class="card">
+                            <h3>Média de Lead Time</h3>
+                            <h1>{:.2f}</h1>
+                        </div>
+                    """.format(status_lead), unsafe_allow_html=True)
+                
+            
+            st.markdown("""
+                <div class="section-divider">
+                    <span>PAGAMENTOS</span>
+                </div>
+                """, unsafe_allow_html=True) 
+            grafico_Unidades, mapa, tabela_Unidades = st.columns([2,0.05,1.2])
+            with grafico_Unidades:
+                
+                st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Pagamentos por Unidade", unsafe_allow_html=True)
+                unidade_count = filtered_df['unidadeSolicitante'].value_counts().reset_index()
+                unidade_count.columns = ['Unidade', 'Total']
+
+                fig_unidade = px.bar(
+                    unidade_count,
+                    x='Total',  # Total no eixo horizontal
+                    y='Unidade',  # Unidade no eixo vertical
+                    color='Total',  # Colorir as barras pelo total
+                    color_continuous_scale=[[0, '#333333'], [1, '#92a5ac']],  # Escala de cores
+                    orientation='h'  # Orientação horizontal
+                )
+                fig_unidade.update_layout(
+                    xaxis_title='Total',
+                    yaxis_title='Unidade',
+                    legend_title='Gravidade Máxima',
+                    yaxis={'categoryorder': 'total ascending'} ,
+                    height=480  # Aumenta a altura do gráfico em pixels
+                )
+
+                # Exibir no Streamlit
+                st.plotly_chart(fig_unidade, use_container_width=True)    
+            with mapa:
+                st.write("")    
+            with tabela_Unidades:
+                rankingUni = filtered_df.groupby('unidadeSolicitante').size().reset_index(name='num_pagamentos')
+                rankingUni =  rankingUni.sort_values(by='num_pagamentos', ascending=False).reset_index(drop=True)
+                rankingUni ['ranking'] = rankingUni.index + 1
+
+                html_content1 = f"""
+                    <body>
+                    <style>
+                    {css_carregado}
+                    </style>
+                        <div class="ranking-container ranking-green">
+                            <div class="ranking-header">
+                                Ranking de Unidades
+                            </div>
+                            <ul class="ranking-list">
+                """            
+                for  row in rankingUni.itertuples():
+                    html_content1 += f"""
+                        <li class="ranking-item">
+                            <span class="ranking-position">{row.ranking}º</span>
+                            <span class="city-name">{row.unidadeSolicitante}</span>
+                            <span class="case-count">{row.num_pagamentos}</span>
+                        </li> 
+                    """
+                html_content1 += """
+                            </ul>
+                        </div>
+                    </body>
+                    """
+                components.html(html_content1, height=570)
+            st.markdown("""
+                <div class="section-divider">
+                    <span>LEAD TIME </span>
+                </div>
+                """,unsafe_allow_html=True)
+            lead_time_grafico, gravidade, rank_lead = st.columns([2.6,0.8,1.6])
+            
+            with lead_time_grafico:
+                average_lead_time = filtered_df.groupby('unidadeSolicitante', as_index=False)['lead_time'].mean()
+                average_lead_time = average_lead_time.sort_values(by='lead_time', ascending=True)
+
+                # Criar o gráfico de barras horizontal com Plotly Express
+            
+                fig = px.bar(
+                    average_lead_time,
+                    x='lead_time',
+                    y='unidadeSolicitante',
+                    orientation='h',  # Barras horizontais
+                    title='Média de Lead Time por Unidade (em dias)',
+                    labels={'lead_time_days': 'Média de Lead Time (dias)', 'unidade': 'Unidade'},
+                    text='lead_time',  # Exibe o valor nas barras
+                    color='lead_time',  # Mapear cores ao valor de lead_time_days
+                    color_continuous_scale=[[0, '#333333'], [1, '#92a5ac']],
+                )
+
+                # Customizações
+                fig.update_traces(texttemplate='%{text:.1f}', textposition='outside')  # Formatação do texto
+                fig.update_layout(
+                    xaxis_title='Média de Lead Time (dias)',
+                    yaxis_title='Unidade',
+                    xaxis=dict(showgrid=True),
+                    template='plotly_white' ,
+                    height=500 # Estilo do gráfico
+                )
+
+                # Mostrar o gráfico
+                st.plotly_chart(fig, use_container_width=True)
+            with rank_lead:
+                ranking_lead_time = (filtered_df.groupby('unidadeSolicitante', as_index=False)['lead_time'].mean().rename(columns={'lead_time': 'media_time'}))
+                ranking_lead_time = (ranking_lead_time.sort_values(by='media_time', ascending=False).reset_index(drop=True))
+                
+                ranking_lead_time['ranking'] = ranking_lead_time.index + 1
+
+                html_content1 = f"""
+                    <body>
+                    <style>
+                    {css_carregado}
+                    </style>
+                        <div class="ranking-container">
+                            <div class="ranking-header">
+                                Ranking de Lead Time por Unidade (em dias)
+                            </div>
+                            <ul class="ranking-list">
+                """            
+                for  row in ranking_lead_time.itertuples():
+                    html_content1 += f"""
+                        <li class="ranking-item">
+                            <span class="ranking-position">{row.ranking}º</span>
+                            <span class="city-name">{row.unidadeSolicitante}</span>
+                            <span class="case-count">{row.media_time:.1f} dias</span>
+                        </li> 
+                    """
+                html_content1 += """
+                            </ul>
+                        </div>
+                    </body>
+                    """
+                components.html(html_content1, height=500)
+            st.markdown("""
+                <div class="section-divider">
+                    <span>Detalhamento de um Pagamento Específico</span>
+                </div>
+                """,unsafe_allow_html=True)  
+    # Selecionar um processo específico
+    processos_disponiveis = filtered_df['processInstanceId'].unique()
+    processo_selecionado = st.selectbox("Selecione o ID do Processo", processos_disponiveis)
+
+    # Obter os dados do processo selecionado
+    dados_processo = filtered_df[filtered_df['processInstanceId'] == processo_selecionado].iloc[0]
+
+    # Exibir os dados de forma organizada
+    st.markdown(f"<p style='color:#333333;font-size:22px;font-weight: bold;'>Dados do Processo {processo_selecionado}", unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div class="containerum">
+    <div class="box">
+        <h3>Informações Gerais</h3>
+        <p><strong>Data Início:</strong> {dados_processo['startDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['startDate']) else 'N/A'}</p>
+        <p><strong>Data Fim:</strong> {dados_processo['endDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['endDate']) else 'N/A'}</p>
+        <p><strong>Lead Time:</strong> {dados_processo['lead_time']:.1f} dias</p>
+        <p><strong>Status:</strong> {dados_processo['status']}</p>
+        <p><strong>Status SLA:</strong> {dados_processo['slaStatus']}</p>
+        <p><strong>Unidade:</strong> {dados_processo['unidadeSolicitante']}</p>
+    </div>
+    <div class="box">
+        <h3>Detalhes do Pagamento</h3>
+        <p><strong>Tipo de pagamento:</strong> {dados_processo['tpPagamento']}</p>
+        <p><strong>Empresa Pagamento:</strong> {dados_processo['empresaPagamento']}</p>
+        <p><strong>Departamento Solicitante:</strong> {dados_processo['departamentoSolicitante']}</p>
+        <p><strong>Solicitante:</strong> {dados_processo['nomeSolicitante']}</p>
+        <p><strong>Função Solicitante:</strong> {dados_processo['funcaoSolicitante']} </p>
+    </div>
+    </div>
+    <div class="conclusao">
+    <h4>Observação</h4>
+    <p>{dados_processo['observacao']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("""
+                <div class="section-divider">
+                    <span> Detalhamento dos Pagamentos</span>
+                </div>
+                """,unsafe_allow_html=True)
+  
+    # Selecionar colunas relevantes
+    cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'unidadeSolicitante', 'tpPagamento', 'empresaPagamento', 'departamentoSolicitante',  'nomeSolicitante','funcaoSolicitante', 'observacao']
+    tabela_sindicancias = filtered_df[cols_relevantes].copy()
+    tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Lead Time', 'Status', 'Status SLA', 'Unidade', 'Tipo de Pagamento', 'Empresa de Pagamento', 'Departamento Solicitante', 'Nome do Solicitante', 'Função do Solicitante', 'Observação']
+
+    # Definir função personalizada para formatar datas
+    def format_date(x):
+        return x.strftime('%d/%m/%Y') if pd.notnull(x) else ''
+
+    # Exibir tabela com formatação
+    st.dataframe(tabela_sindicancias.style.format({
+        'Data Início': format_date,
+        'Data Fim': format_date,
+        'Prejuízo Financeiro': 'R${:,.2f}'
+    }))
+            
+            
+            
+            
+
+
+
+
+
+
+   

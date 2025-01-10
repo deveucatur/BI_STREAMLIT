@@ -82,7 +82,7 @@
     left: 0;
     width: 100%;
     height: 55px;
-    background: linear-gradient(145deg, #333333, #5C6F7A); /* Cinza Escuro + Azul Acinzentado */
+    background: linear-gradient(145deg, #333333, #92a5ac); /* Cinza Escuro + Azul Acinzentado */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
@@ -190,7 +190,7 @@ main p {
 }
 
 .ranking-header {
-    background: linear-gradient(145deg, #5C6F7A, #333333); /* Azul Acinzentado + Cinza Escuro */
+    background: linear-gradient(145deg,#333333, #92a5ac); /* Azul Acinzentado + Cinza Escuro */
     color: white;
     text-align: center;
     padding: 15px;
@@ -286,7 +286,7 @@ main p {
 }
 
 .section-divider {
-    background: linear-gradient(145deg, #333333, #5C6F7A); /* Gradiente moderno */
+    background: linear-gradient(145deg, #333333, #92a5ac); /* Gradiente moderno */
     color: #FFFFFF; /* Texto branco para contraste */
     padding: 1px 20px;
     border-radius: 16px;
