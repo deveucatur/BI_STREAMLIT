@@ -284,7 +284,7 @@ else:
                 
             # 2. Filtros Interativos
             with st.expander("Filtros"):
-                st.write(df)
+                
 
                 def multiselect_with_all(label, options):
                     """Função para criar um multiselect com a opção 'Todos'."""
