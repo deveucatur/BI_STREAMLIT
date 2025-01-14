@@ -7,7 +7,7 @@ st.set_page_config(page_title="BI Sindicancia",
 
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
+from datetime import datetime,timedelta
 import json
 from wordcloud import WordCloud, STOPWORDS
 import requests
@@ -316,7 +316,7 @@ else:
                     medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'].dropna().unique())
                 with colsta7:
                     start_date_default  = df['startDate'].min().date() 
-                    end_date_default = datetime.today().date()    
+                    end_date_default = datetime.today().date()
                         
                     start_date = st.date_input("Data Inicial", start_date_default)           
                 with colsta8:
@@ -335,8 +335,18 @@ else:
             #     (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
             # )
             # ]
+
             
             
+            filtered_metrics = df[ 
+                ((df['startDate'] >= pd.Timestamp(start_date)) &
+                (
+                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date) - timedelta(days=1))) |  # Valores nulos, mas dentro do intervalo
+                (df['endDate'] <= pd.Timestamp(end_date) - timedelta(days=1))  # Valores não nulos dentro do intervalo
+                ))&
+                (df['unidade'].isin(unidade_filter)) 
+              
+            ]
 
             # Aplicar filtros
             filtered_df = df[
@@ -349,23 +359,11 @@ else:
                 #(df['irregularidade'].isin(irregularidade_filter)) &
                 (df['gravidadeMaxima'].isin(gravidade_filter)) &
                 #(df['nmInvestigado'].isin(investigado_filter)) &
-                (df['solicitante'].isin(solicitante_filter)) &
-                (df['startDate'] >= pd.Timestamp(start_date)) &
-                (
-                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
-                (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
-                )
+                (df['solicitante'].isin(solicitante_filter)) 
+                
 
             ]
-            filtered_metrics = df[
-                (df['unidade'].isin(unidade_filter)) &
-                (df['startDate'] >= pd.Timestamp(start_date)) &
-                (
-                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
-                (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
-                )
-
-            ]
+           
 
 
 

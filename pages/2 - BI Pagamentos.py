@@ -259,13 +259,13 @@ else:
                 (df['nomeSolicitante'].isin(solicitante_filter)) &
                 (df['unidadeSolicitante'].isin(unidade_filter)) &
                 (df['departamentoSolicitante'].isin(departamento_filter)) &
-                (df['empresaPagamento'].isin(empresa_filter)) &
-                (df['startDate'] >= pd.Timestamp(start_date)) &
+                (df['empresaPagamento'].isin(empresa_filter)) 
+            ]                
+            ((df['startDate'] >= pd.Timestamp(start_date)) &
                 (
                 (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
                 (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
-                )
-            ]
+                ))
             col1, col2, col3, col4,col5,col6 = st.columns(6)
             total_processos = len(filtered_df)
             status_finalizado = filtered_df[filtered_df['status'] == 'Finalizado'].shape[0]
