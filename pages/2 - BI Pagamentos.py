@@ -14,7 +14,7 @@ import requests
 from requests_oauthlib import OAuth1
 import os
 from dotenv import load_dotenv 
-from util import cabEscala, sideBar
+from util import cabEscala, sideBar, cabEscala1
 import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 import streamlit_authenticator as stauth
@@ -40,7 +40,7 @@ def carregar_css(file_name):
 css_carregado = carregar_css("stylesPag.css")
 local_css("stylesPag.css")
 menu_menu = "BI Pagamentos"
-menu = cabEscala(menu_menu)
+menu = cabEscala1(menu_menu)
 
 
 
@@ -158,6 +158,43 @@ else:
             df['lead_time'] = ((df['endDate'].fillna(datetime.now()) - df['startDate']).dt.total_seconds() / 3600) / 24 
             df['status'] = df['status'].str.lower().map({'open': 'Aberto', 'finalized': 'Finalizado'}) 
             df['slaStatus'] = df['slaStatus'].str.lower().map({'on_time': 'No Prazo', 'overdue': 'Em Atraso'})
+
+            def padronizar_suspensao(suspensao):
+                if isinstance(suspensao, str):
+                    if 'Suspensão' in suspensao:
+                        return 'Suspensão'
+                    elif 'Orientação Disciplinar' in suspensao:
+                        return 'Orientação Disciplinar'
+                    elif 'Advertência Escrita' in suspensao:
+                        return 'Advertência Escrita'
+                    elif 'Desligamento (Justa Causa) - Desligamento (Justa Causa)' in suspensao:
+                        return 'Desligamento (Justa Causa)'
+                    
+                return suspensao
+            def padronizar_coluna(texto):
+               
+                if isinstance(texto, str):  # Verifica se o valor é uma string
+                    if 'ENCOM COMERCIAL - CPO ENCOMENDAS' in texto or 'JI PARANA  EUCATUR - ENCOMENDAS COMERCIAL - CPO ENCOMENDAS' in texto:
+                        return 'Encomendas'
+                    elif 'ADMINISTRATIVO - DPTO PESSOAL' in texto or 'ADMINIST - DPTO PESSOAL' in texto:
+                        return 'Departamento Pessoal'
+                    elif 'FINANCEIRO - TESOURARIA' in texto or 'FINANCEIRO - PLANEJAMENTO' in texto:
+                        return 'Financeiro'
+                    elif 'ADM - ESCRITORIO FILIAL' in texto:
+                        return 'Escritório Filial'
+                    elif 'MANUTENCAO - TECN/OFICINA' in texto:
+                        return 'Manutenção'
+                    elif 'ADMINIST - ADM ATIVOS' in texto:
+                        return 'Administração de Ativos'
+                    elif 'ADMINISTRATIVO - GERENCIA' in texto:
+                        return 'Gerência Administrativa'
+                    elif 'OPERAC - CPO OPER INTERNO' in texto :
+                        return 'Operações Internas'
+                return texto
+            
+            df['departamentoSolicitante'] = df['departamentoSolicitante'].apply(padronizar_coluna)
+            df= df[df['departamentoSolicitante'].notna() & (df['departamentoSolicitante'] != '')]
+
             
             with st.expander("Filtros"):
                 
@@ -198,7 +235,7 @@ else:
                 with colsta8:
                 
                     end_date = st.date_input("Data Final",end_date_default)
-                
+                departamento_filter = multiselect_with_all("Departamento", df['departamentoSolicitante'].dropna().unique())
                 #irregularidade_filter = multiselect_with_all("Irregularidade", df['irregularidade'].dropna().unique())
                 
                 #investigado_filter = multiselect_with_all("Investigado", df['nmInvestigado'].dropna().unique()) 
@@ -221,6 +258,7 @@ else:
                 (df['tpPagamento'].isin(tp_filter)) &
                 (df['nomeSolicitante'].isin(solicitante_filter)) &
                 (df['unidadeSolicitante'].isin(unidade_filter)) &
+                (df['departamentoSolicitante'].isin(departamento_filter)) &
                 (df['empresaPagamento'].isin(empresa_filter)) &
                 (df['startDate'] >= pd.Timestamp(start_date)) &
                 (
@@ -262,7 +300,7 @@ else:
             with col4:
                     st.markdown("""
                         <div class="card">
-                            <h3>Processos no Prazo</h3>
+                            <h3>em edição </h3>
                             <h1>{}</h1>
                         </div>
                     """.format(status_aprovado), unsafe_allow_html=True)
@@ -284,7 +322,7 @@ else:
             
             st.markdown("""
                 <div class="section-divider">
-                    <span>PAGAMENTOS</span>
+                    <span>PAGAMENTOS UNIDADES</span>
                 </div>
                 """, unsafe_allow_html=True) 
             grafico_Unidades, mapa, tabela_Unidades = st.columns([2,0.05,1.2])
@@ -335,6 +373,69 @@ else:
                         <li class="ranking-item">
                             <span class="ranking-position">{row.ranking}º</span>
                             <span class="city-name">{row.unidadeSolicitante}</span>
+                            <span class="case-count">{row.num_pagamentos}</span>
+                        </li> 
+                    """
+                html_content1 += """
+                            </ul>
+                        </div>
+                    </body>
+                    """
+                components.html(html_content1, height=570)
+            st.markdown("""
+                <div class="section-divider">
+                    <span>PAGAMENTOS departamento</span>
+                </div>
+                """, unsafe_allow_html=True)     
+
+            grafico_departamentos, mapa, tabela_departamentos = st.columns([2,0.05,1.2])
+            with grafico_departamentos:
+                
+                st.markdown("<p style='color:#333333;font-size:17px;font-weight: bold;'>Pagamentos por Departamento", unsafe_allow_html=True)
+                unidade_count = filtered_df['departamentoSolicitante'].value_counts().reset_index()
+                unidade_count.columns = ['Departamento', 'Total']
+
+                fig_departamento = px.bar(
+                    unidade_count,
+                    x='Total',  # Total no eixo horizontal
+                    y='Departamento',  # Unidade no eixo vertical
+                    color='Total',  # Colorir as barras pelo total
+                    color_continuous_scale=[[0, '#333333'], [1, '#92a5ac']],  # Escala de cores
+                    orientation='h'  # Orientação horizontal
+                )
+                fig_departamento.update_layout(
+                    xaxis_title='Total',
+                    yaxis_title='Departamento',
+                    legend_title='Gravidade Máxima',
+                    yaxis={'categoryorder': 'total ascending'} ,
+                    height=480  # Aumenta a altura do gráfico em pixels
+                )
+
+                # Exibir no Streamlit
+                st.plotly_chart(fig_departamento, use_container_width=True)    
+            with mapa:
+                st.write("")    
+            with tabela_departamentos:
+                rankingUni = filtered_df.groupby('departamentoSolicitante').size().reset_index(name='num_pagamentos')
+                rankingUni =  rankingUni.sort_values(by='num_pagamentos', ascending=False).reset_index(drop=True)
+                rankingUni ['ranking'] = rankingUni.index + 1
+
+                html_content1 = f"""
+                    <body>
+                    <style>
+                    {css_carregado}
+                    </style>
+                        <div class="ranking-container ranking-green">
+                            <div class="ranking-header">
+                                Ranking de Unidades
+                            </div>
+                            <ul class="ranking-list">
+                """            
+                for  row in rankingUni.itertuples():
+                    html_content1 += f"""
+                        <li class="ranking-item">
+                            <span class="ranking-position">{row.ranking}º</span>
+                            <span class="city-name">{row.departamentoSolicitante}</span>
                             <span class="case-count">{row.num_pagamentos}</span>
                         </li> 
                     """
@@ -473,6 +574,7 @@ else:
         'Data Fim': format_date,
         'Prejuízo Financeiro': 'R${:,.2f}'
     }))
+    st.write(filtered_df)
             
             
             

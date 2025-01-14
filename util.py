@@ -22,3 +22,14 @@ def cabEscala(nome):
     </div>
 """  
    .format(nome), unsafe_allow_html=True)
+    
+def cabEscala1(nome):
+    st.markdown(""" 
+    <div class="topo">
+        <div class="logo">
+            <img >
+            <span>{}</span>
+        </div>
+    </div>
+"""  
+   .format(nome), unsafe_allow_html=True)

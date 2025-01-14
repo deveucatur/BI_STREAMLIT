@@ -149,7 +149,7 @@ else:
                     st.warning(f"Registro ignorado por não ser um dicionário: {record}")
 
             df = pd.DataFrame(records)
-
+          
             # Converter colunas de datas para datetime
             df['startDate'] = pd.to_datetime(df['startDate'], errors='coerce')
             df['endDate'] = pd.to_datetime(df['endDate'], errors='coerce')
@@ -159,11 +159,14 @@ else:
             # Calcular Lead Time
             #df_filtrado = df['lead_time'] = (df['endDate'] - df['startDate']).dt.days
             df['lead_time'] = ((df['endDate'].fillna(datetime.now()) - df['startDate']).dt.total_seconds() / 3600) / 24
-
+      
             df['prejFinanc'] = df['prejFinanc'].str.replace(',', '')
             df= df[df['unidade'].notna() & (df['unidade'] != '')]
             
             df['prejFinanc'] = pd.to_numeric(df['prejFinanc'], errors='coerce')
+            df['prejFinanc'] = df['prejFinanc'].apply(lambda x: None if x == 0 else x)
+            
+
         
         
                 
@@ -174,7 +177,7 @@ else:
                     gravidade = gravidade.lower()
                     if 'leve' in gravidade:
                         return 'Leve'
-                    elif 'moderada' in gravidade or 'média' in gravidade:
+                    elif 'moderada' in gravidade or 'média' in gravidade or 'moderado' in gravidade:
                         return 'Moderada'
                     elif 'grave' in gravidade:
                         return 'Grave'
@@ -192,6 +195,8 @@ else:
                         return 'Advertência Escrita'
                     elif 'Desligamento (Justa Causa) - Desligamento (Justa Causa)' in suspensao:
                         return 'Desligamento (Justa Causa)'
+                    elif '' in suspensao:
+                        return 'Não informada'
                     
                 return suspensao
             
@@ -247,7 +252,7 @@ else:
             df['tbIrregularidade___1'] =  df['tbIrregularidade___1'].apply(padronizar_irregularidade)  
             df['mddCorretSelecionada'] =  df['mddCorretSelecionada'].apply(padronizar_suspensao)   
             df = df.dropna(subset=['mddCorretSelecionada'])
-            df = df[df['mddCorretSelecionada'].str.strip() != '']
+           
             
             # Traduzir e padronizar status e slaStatus
             df['status'] = df['status'].str.lower().map({'open': 'Aberto', 'finalized': 'Finalizado'})
@@ -279,7 +284,7 @@ else:
                 
             # 2. Filtros Interativos
             with st.expander("Filtros"):
-                
+                st.write(df)
 
                 def multiselect_with_all(label, options):
                     """Função para criar um multiselect com a opção 'Todos'."""
@@ -302,7 +307,7 @@ else:
                     unidade_filter = multiselect_with_all("Unidade", df['unidade'].unique())
                     #regiao_filter = multiselect_with_all("Região", df['regiaoUnidade'].dropna().unique())
                 with colsta5: 
-                    solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'].dropna().unique())
+                    solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'].unique())
 
                 #cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
                 
