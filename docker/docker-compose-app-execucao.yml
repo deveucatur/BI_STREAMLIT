@@ -1,0 +1,9 @@
+version: '3.2'
+services:
+  bi-streamlit:
+    build: 
+      context: ./docker-file-bi-streamlit:wq
+    image: bi-streamlit:latest
+    ports:
+      - 8505:8505
+    restart: always

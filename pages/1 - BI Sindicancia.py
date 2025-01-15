@@ -5,6 +5,8 @@ st.set_page_config(page_title="BI Sindicancia",
                     page_icon="https://raw.githubusercontent.com/deveucatur/BI_STREAMLIT/main/src/Logomarca%20ADP%20Vs2%20(1).png"
                    )
 
+
+
 import pandas as pd
 import plotly.express as px
 from datetime import datetime,timedelta
@@ -39,6 +41,9 @@ def carregar_css(file_name):
 # Aplicar o CSS personalizado
 css_carregado = carregar_css("style.css")
 local_css("style.css")
+
+
+
 menu_menu = "BI Sindicancia"
 menu = cabEscala(menu_menu)
 
@@ -82,8 +87,7 @@ elif authentication_status == None:
         st.warning('Insira seu Email e Senha')
 else:
     authenticator.logout('Logout', 'sidebar') 
-    
-
+ 
         # Função para carregar dados da API
     @st.cache_data(ttl=600)
     def load_data_from_api():
@@ -316,23 +320,23 @@ else:
 
                 colsta1, colsta2,colsta3 = st.columns(3)
                 with colsta1:
-                    status_filter = multiselect_with_all("Status", df['status'])
+                    status_filter = multiselect_with_all("Status", df['status'].unique())
                 with colsta2:    
                     sla_filter = multiselect_with_all("Status do SLA", df['slaStatus'])
                 with colsta3:     
                     gravidade_filter = multiselect_with_all("Gravidade", ['Leve', 'Moderada', 'Grave','Não informado'])
                 colsta4, colsta5 = st.columns(2)
                 with colsta4:
-                    unidade_filter = multiselect_with_all("Unidade", df['unidade'])
+                    unidade_filter = multiselect_with_all("Unidade", df['unidade'].unique())
                     #regiao_filter = multiselect_with_all("Região", df['regiaoUnidade'].dropna().unique())
                 with colsta5: 
-                    solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'])
+                    solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'].unique())
 
                 #cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
                 
                 colsta6, colsta7,colsta8 = st.columns(3)
                 with colsta6:
-                    medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'])
+                    medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'].dropna().unique())
                 with colsta7:
                     start_date_default  = df['startDate'].min().date() 
                     end_date_default = datetime.today().date()
