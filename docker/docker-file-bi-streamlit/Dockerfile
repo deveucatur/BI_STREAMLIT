@@ -17,7 +17,7 @@ RUN git clone https://<<token>>git@github.com:deveucatur/BI_STREAMLIT.git .
 
 RUN pip3 install -r requirements.txt
 
-EXPOSE 8503
+EXPOSE 8505
 
 HEALTHCHECK CMD curl --fail http://localhost:8503/_stcore/health
 
