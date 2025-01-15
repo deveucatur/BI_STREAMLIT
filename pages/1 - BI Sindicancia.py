@@ -45,9 +45,9 @@ menu = cabEscala(menu_menu)
 
 
 
-names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros', 'Juliano.Marca']
-usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com','juliano.marca']
-hashed_passwords = ['admin','admin','admin','admin']
+names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros', 'Juliano.Marca','Vanessa']
+usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com','juliano.marca','mailto:performance4.eucatur@gmail.com']
+hashed_passwords = ['admin','admin','admin','admin','admin']
 
 def convert_to_dict(names, usernames, passwords):
     credentials = {"usernames": {}}
@@ -161,7 +161,7 @@ else:
             df['lead_time'] = ((df['endDate'].fillna(datetime.now()) - df['startDate']).dt.total_seconds() / 3600) / 24
       
             df['prejFinanc'] = df['prejFinanc'].str.replace(',', '')
-            df= df[df['unidade'].notna() & (df['unidade'] != '')]
+            
             
             df['prejFinanc'] = pd.to_numeric(df['prejFinanc'], errors='coerce')
             df['prejFinanc'] = df['prejFinanc'].apply(lambda x: None if x == 0 else x)
@@ -181,7 +181,10 @@ else:
                         return 'Moderada'
                     elif 'grave' in gravidade:
                         return 'Grave'
-                return 'Não Informada'
+                    elif gravidade.strip() == '':
+                        return 'Não informado'
+                    
+                return gravidade
 
             df['gravidadeMaxima'] = df['gravidadeMaxima'].apply(ajustar_gravidade)
 
@@ -195,14 +198,28 @@ else:
                         return 'Advertência Escrita'
                     elif 'Desligamento (Justa Causa) - Desligamento (Justa Causa)' in suspensao:
                         return 'Desligamento (Justa Causa)'
-                    elif '' in suspensao:
+                    elif suspensao.strip() == '':
                         return 'Não informada'
                     
                 return suspensao
             
-            def padronizar_irregularidade(irregularidade):
+            def padronizar_unidade(unidade):
+                if isinstance(unidade, str):
+                    if 'CEEM Boa Vista - Manaus' in unidade:
+                        return 'CEEM Boa Vista/Manaus'
+                    elif unidade.strip() == '':
+                        return 'Não informada'
+
+
+                return unidade    
+
+
             
+            def padronizar_irregularidade(irregularidade):
+                if irregularidade is None:  
+                    return 'Indefinido/Outra'
                 if isinstance(irregularidade, str):
+                    
                     # Casos específicos de padronização
                     if 'equivocosatividadesprocedimentos' in irregularidade:
                         return 'Equívocos em Atividades ou Procedimentos'
@@ -242,17 +259,19 @@ else:
                         return 'Atrasos Frequentes e Injustificados'
                     elif 'atrasosesporadicos' in irregularidade:
                         return 'Atrasos Esporádicos'
-                    elif 'indefinido_outra' in irregularidade:
+                    elif 'indefinido_outra' in irregularidade:                   
+                        return 'Indefinido/Outra'
+                    elif irregularidade.strip() == '':
                         return 'Indefinido/Outra'
                 
                 # Retorna o valor original caso não haja correspondência
                 return irregularidade
                 
-
+            
             df['tbIrregularidade___1'] =  df['tbIrregularidade___1'].apply(padronizar_irregularidade)  
             df['mddCorretSelecionada'] =  df['mddCorretSelecionada'].apply(padronizar_suspensao)   
             df = df.dropna(subset=['mddCorretSelecionada'])
-           
+            df['unidade'] = df['unidade'].apply(padronizar_unidade)
             
             # Traduzir e padronizar status e slaStatus
             df['status'] = df['status'].str.lower().map({'open': 'Aberto', 'finalized': 'Finalizado'})
@@ -297,23 +316,23 @@ else:
 
                 colsta1, colsta2,colsta3 = st.columns(3)
                 with colsta1:
-                    status_filter = multiselect_with_all("Status", df['status'].dropna().unique())
+                    status_filter = multiselect_with_all("Status", df['status'])
                 with colsta2:    
-                    sla_filter = multiselect_with_all("Status do SLA", df['slaStatus'].dropna().unique())
+                    sla_filter = multiselect_with_all("Status do SLA", df['slaStatus'])
                 with colsta3:     
-                    gravidade_filter = multiselect_with_all("Gravidade", ['Leve', 'Moderada', 'Grave'])
+                    gravidade_filter = multiselect_with_all("Gravidade", ['Leve', 'Moderada', 'Grave','Não informado'])
                 colsta4, colsta5 = st.columns(2)
                 with colsta4:
-                    unidade_filter = multiselect_with_all("Unidade", df['unidade'].unique())
+                    unidade_filter = multiselect_with_all("Unidade", df['unidade'])
                     #regiao_filter = multiselect_with_all("Região", df['regiaoUnidade'].dropna().unique())
                 with colsta5: 
-                    solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'].unique())
+                    solicitante_filter = multiselect_with_all("Solicitante", df['solicitante'])
 
                 #cidade_filter = multiselect_with_all("Cidade", df['cidadeFato'].dropna().unique())
                 
                 colsta6, colsta7,colsta8 = st.columns(3)
                 with colsta6:
-                    medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'].dropna().unique())
+                    medida_filter = multiselect_with_all("Medida Corretiva", df['mddCorretSelecionada'])
                 with colsta7:
                     start_date_default  = df['startDate'].min().date() 
                     end_date_default = datetime.today().date()
@@ -339,14 +358,17 @@ else:
             
             
             filtered_metrics = df[ 
-                ((df['startDate'] >= pd.Timestamp(start_date)) &
+                (df['startDate'] >= pd.Timestamp(start_date)) &
                 (
-                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date) - timedelta(days=1))) |  # Valores nulos, mas dentro do intervalo
-                (df['endDate'] <= pd.Timestamp(end_date) - timedelta(days=1))  # Valores não nulos dentro do intervalo
-                ))&
+                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date) )) |  # Valores nulos, mas dentro do intervalo
+                (df['endDate'] <= pd.Timestamp(end_date) )) &
                 (df['unidade'].isin(unidade_filter)) 
               
             ]
+            df = df[(
+                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
+                (df['endDate'] <= pd.Timestamp(end_date)   # Valores não nulos dentro do intervalo
+                ))]
 
             # Aplicar filtros
             filtered_df = df[
@@ -359,14 +381,13 @@ else:
                 #(df['irregularidade'].isin(irregularidade_filter)) &
                 (df['gravidadeMaxima'].isin(gravidade_filter)) &
                 #(df['nmInvestigado'].isin(investigado_filter)) &
-                (df['solicitante'].isin(solicitante_filter)) 
-                
-
+                (df['solicitante'].isin(solicitante_filter)) &
+                (df['startDate'] >= pd.Timestamp(start_date)) &
+                (df['unidade'].isin(unidade_filter)) 
             ]
            
 
-
-
+        
 
 
 
@@ -1220,6 +1241,7 @@ else:
         'Data Fim': format_date,
         'Prejuízo Financeiro': 'R${:,.2f}'
     }))
+   
     # 7. Novo Painel para Visualização Detalhada de uma Sindicância
 
     
