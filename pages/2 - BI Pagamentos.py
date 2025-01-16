@@ -21,7 +21,8 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
-
+current_page = "BI Pagamentos" 
+sideBar(current_page)
 
 
 

@@ -287,7 +287,8 @@ main p {
 .ranking-green .ranking-item:hover{
     background: linear-gradient(145deg, #2BD957, #05AFF2);
 }
-
+[data-testid="stSidebarNav"] {
+    display: none;}
 
 
 

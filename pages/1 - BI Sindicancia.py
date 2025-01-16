@@ -43,6 +43,8 @@ css_carregado = carregar_css("style.css")
 local_css("style.css")
 
 
+current_page = "BI Sindicancia" 
+sideBar(current_page)
 
 menu_menu = "BI Sindicância"
 menu = cabEscala(menu_menu)

@@ -9,6 +9,8 @@ import streamlit_authenticator as stauth
 from conexao import conexaoBD
 from util import cabEscala, sideBar
 
+current_page = "Home" 
+sideBar(current_page)
 
 names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros']
 usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com']

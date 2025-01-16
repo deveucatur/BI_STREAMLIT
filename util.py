@@ -7,10 +7,25 @@ def local_css(file_name):
 # Aplicar o CSS personalizado
 local_css("style.css")
 
-def sideBar():
-    st.sidebar.page_link("Home.py")
-    st.sidebar.page_link("pages/1 - BI Sindicancia.py")
-    st.sidebar.page_link("pages/1 - BI Pagamentos.py")
+# def sideBar():
+    
+    
+    
+
+def sideBar(current_page):
+  
+    if current_page == "BI Pagamentos":
+       
+       st.sidebar.page_link("Home.py")
+      
+    elif current_page == "BI Sindicância":
+      st.sidebar.page_link("Home.py")
+      st.sidebar.page_link("pages/1 - BI Sindicancia.py")
+    elif current_page == "Home":
+        st.sidebar.write("🔒 Home")
+        st.sidebar.page_link("pages/1 - BI Sindicancia.py")
+        st.sidebar.page_link("pages/2 - BI Pagamentos.py")
+    
     
 def cabEscala(nome):
     st.markdown(""" 
