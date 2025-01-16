@@ -162,18 +162,7 @@ else:
             df['status'] = df['status'].str.lower().map({'open': 'Aberto', 'finalized': 'Finalizado'}) 
             df['slaStatus'] = df['slaStatus'].str.lower().map({'on_time': 'No Prazo', 'overdue': 'Em Atraso'})
 
-            def padronizar_suspensao(suspensao):
-                if isinstance(suspensao, str):
-                    if 'Suspensão' in suspensao:
-                        return 'Suspensão'
-                    elif 'Orientação Disciplinar' in suspensao:
-                        return 'Orientação Disciplinar'
-                    elif 'Advertência Escrita' in suspensao:
-                        return 'Advertência Escrita'
-                    elif 'Desligamento (Justa Causa) - Desligamento (Justa Causa)' in suspensao:
-                        return 'Desligamento (Justa Causa)'
-                    
-                return suspensao
+           
             def padronizar_coluna(texto):
                
                 if isinstance(texto, str):  # Verifica se o valor é uma string
@@ -181,9 +170,9 @@ else:
                         return 'Encomendas'
                     elif 'ADMINISTRATIVO - DPTO PESSOAL' in texto or 'ADMINIST - DPTO PESSOAL' in texto:
                         return 'Departamento Pessoal'
-                    elif 'FINANCEIRO - TESOURARIA' in texto or 'FINANCEIRO - PLANEJAMENTO' in texto:
+                    elif 'FINANCEIRO - TESOURARIA' in texto or 'FINANCEIRO - PLANEJAMENTO' in texto or 'JI PARANA EUCATUR - FINANCEIRO - COMPRAS - FIN CORPORATIVO' in texto:
                         return 'Financeiro'
-                    elif 'ADM - ESCRITORIO FILIAL' in texto:
+                    elif 'ADM - ESCRITORIO FILIAL' in texto or 'CUIABA EUCATUR - ADMINISTRATIVO - ESCR FILIAL' in texto:
                         return 'Escritório Filial'
                     elif 'MANUTENCAO - TECN/OFICINA' in texto:
                         return 'Manutenção'
@@ -193,10 +182,12 @@ else:
                         return 'Gerência Administrativa'
                     elif 'OPERAC - CPO OPER INTERNO' in texto :
                         return 'Operações Internas'
-                return texto
+                    elif '' in texto:
+                        return 'não informado'
+                return texto 
             
             df['departamentoSolicitante'] = df['departamentoSolicitante'].apply(padronizar_coluna)
-            df= df[df['departamentoSolicitante'].notna() & (df['departamentoSolicitante'] != '')]
+            #df= df[df['departamentoSolicitante'].notna() & (df['departamentoSolicitante'] != '')]
 
             
             with st.expander("Filtros"):
@@ -220,7 +211,7 @@ else:
                     empresa_filter = multiselect_with_all("Empresa", df['empresaPagamento'].dropna().unique())
                 colsta4, colsta5 = st.columns(2)
                 with colsta4:
-                    unidade_filter = multiselect_with_all("Unidade", df['unidadeSolicitante'].unique())
+                    unidade_filter = multiselect_with_all("Unidade", df['unidadeSolicitante'].dropna().unique())
                     #regiao_filter = multiselect_with_all("Região", df['regiaoUnidade'].dropna().unique())
                 with colsta5: 
                     solicitante_filter = multiselect_with_all("Solicitante", df['nomeSolicitante'].dropna().unique())
@@ -253,7 +244,7 @@ else:
             # ]
             
             
-
+            end_date = pd.Timestamp(end_date).normalize() + pd.Timedelta(days=1) - pd.Timedelta(microseconds=1)
             # Aplicar filtros
             filtered_df = df[
                 (df['status'].isin(status_filter)) &
@@ -262,20 +253,21 @@ else:
                 (df['nomeSolicitante'].isin(solicitante_filter)) &
                 (df['unidadeSolicitante'].isin(unidade_filter)) &
                 (df['departamentoSolicitante'].isin(departamento_filter)) &
-                (df['empresaPagamento'].isin(empresa_filter)) 
-            ]                
-            ((df['startDate'] >= pd.Timestamp(start_date)) &
+                (df['empresaPagamento'].isin(empresa_filter)) & 
+                ((df['startDate'] >= pd.Timestamp(start_date)) &
                 (
-                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
-                (df['endDate'] <= pd.Timestamp(end_date))  # Valores não nulos dentro do intervalo
+                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) | 
+                (df['endDate'] <= pd.Timestamp(end_date))  
                 ))
+            ]                
+           
             col1, col2, col3, col4,col5,col6 = st.columns(6)
             total_processos = len(filtered_df)
             status_finalizado = filtered_df[filtered_df['status'] == 'Finalizado'].shape[0]
             status_aberto = filtered_df[filtered_df['status'] == 'Aberto'].shape[0]
             status_lead =   filtered_df['lead_time'].mean()
             status_aprovado = filtered_df[filtered_df['aprovarSolic'] == 'aprovado'].shape[0]
-            filtered_df.to_csv("arquivo.csv", index=False)
+            
             
             with col1:
                 st.markdown("""
@@ -385,6 +377,7 @@ else:
                     </body>
                     """
                 components.html(html_content1, height=570)
+                
             st.markdown("""
                 <div class="section-divider">
                     <span>PAGAMENTOS departamento</span>
@@ -577,7 +570,7 @@ else:
         'Data Fim': format_date,
         'Prejuízo Financeiro': 'R${:,.2f}'
     }))
-    st.write(filtered_df)
+   
             
             
             
