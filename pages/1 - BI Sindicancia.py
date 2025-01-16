@@ -43,8 +43,7 @@ css_carregado = carregar_css("style.css")
 local_css("style.css")
 
 
-current_page = "BI Sindicancia" 
-sideBar(current_page)
+
 
 menu_menu = "BI Sindicância"
 menu = cabEscala(menu_menu)
@@ -89,6 +88,9 @@ elif authentication_status == None:
         st.warning('Insira seu Email e Senha')
 else:
     authenticator.logout('Logout', 'sidebar') 
+    
+    current_page = "BI Sindicancia" 
+    sideBar(current_page)
  
         # Função para carregar dados da API
     @st.cache_data(ttl=600)
