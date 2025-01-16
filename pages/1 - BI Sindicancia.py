@@ -326,7 +326,7 @@ else:
                 with colsta1:
                     status_filter = multiselect_with_all("Status", df['status'].unique())
                 with colsta2:    
-                    sla_filter = multiselect_with_all("Status do SLA", df['slaStatus'])
+                    sla_filter = multiselect_with_all("Status do SLA", df['slaStatus'].unique())
                 with colsta3:     
                     gravidade_filter = multiselect_with_all("Gravidade", ['Leve', 'Moderada', 'Grave','Não informado'])
                 colsta4, colsta5 = st.columns(2)
@@ -365,7 +365,7 @@ else:
             
                 
             
-            
+            end_date = pd.Timestamp(end_date).normalize() + pd.Timedelta(days=1) - pd.Timedelta(microseconds=1)
             filtered_metrics = df[ 
                     (df['startDate'] >= pd.Timestamp(start_date)) &
                     (
