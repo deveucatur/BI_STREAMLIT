@@ -67,7 +67,7 @@ col1, col2,col3 = st.columns([1,3,1])
 with col2:
     name, authentication_status, username = authenticator.login(
         location='main', fields={
-            'Form name':'Acessar BI Pagamentos',
+            'Form name':' ACESSAR BINTELLIGENCE',
             'Username':'Login', 
             'Password':'Senha', 
             'Login':'Entrar'
@@ -82,7 +82,7 @@ elif authentication_status == None:
         st.warning('Insira seu Email e Senha')
 else:
     authenticator.logout('Logout', 'sidebar')
-    
+
     current_page = "BI Pagamentos" 
     sideBar(current_page)
 
