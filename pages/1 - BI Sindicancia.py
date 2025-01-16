@@ -397,7 +397,8 @@ else:
                 )))
             ]
 
-            with st.expander("Metrics Geral"):
+            tab1, tab2= st.tabs(["Metrics Geral", "Metrics Filtradas"])
+            with tab1:
 
                     col1, col2, col3, col4,col5,col6 = st.columns(6)
                     total_processos = len(filtered_metrics)
@@ -407,7 +408,7 @@ else:
                     status_atraso = filtered_metrics[filtered_metrics['slaStatus'] == 'Em Atraso'].shape[0]
                     status_lead =   filtered_metrics['lead_time'].mean()
                     status_preju = soma_total = filtered_metrics['prejFinanc'].sum() 
-                    st.markdown("")
+                   
                     with col1:
                         st.markdown("""
                         <div class="card">
@@ -452,9 +453,9 @@ else:
                                     <h1>{:.2f}</h1>
                                 </div>
                             """.format(status_lead), unsafe_allow_html=True) 
-                    st.markdown("")
+                   
                         
-            with st.expander("Metrics FIltrados"): 
+            with tab2: 
                     col1, col2, col3, col4,col5,col6 = st.columns(6)
                     total_processos = len(filtered_df)
                     status_finalizado = filtered_df[filtered_df['status'] == 'Finalizado'].shape[0]
@@ -463,7 +464,7 @@ else:
                     status_atraso = filtered_df[filtered_df['slaStatus'] == 'Em Atraso'].shape[0]
                     status_lead =   filtered_df['lead_time'].mean()
                     status_preju = soma_total = filtered_df['prejFinanc'].sum() 
-                    st.markdown("")
+                    
                     with col1:
                         st.markdown("""
                         <div class="card">
@@ -508,23 +509,8 @@ else:
                                     <h1>{:.2f}</h1>
                                 </div>
                             """.format(status_lead), unsafe_allow_html=True)               
-                    st.markdown("")     
-          
-            
-            
+      
     
-            
-
-
-
-
-
-
-
-
-
-
-
             # with tabCidades:
                     
             #        ####################  CIDADES ##############################
