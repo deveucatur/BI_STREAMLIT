@@ -15,12 +15,12 @@ local_css("style.css")
 def sideBar(current_page):
   
     if current_page == "BI Pagamentos":
+       st.sidebar.page_link("pages/2 - BI Pagamentos.py")
        
-       st.sidebar.page_link("Home.py")
       
     elif current_page == "BI Sindicância":
       st.sidebar.page_link("Home.py")
-      st.sidebar.page_link("pages/1 - BI Sindicancia.py")
+      
     elif current_page == "Home":
         st.sidebar.write("🔒 Home")
       
