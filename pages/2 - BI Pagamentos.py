@@ -21,8 +21,7 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
-current_page = "BI Pagamentos" 
-sideBar(current_page)
+
 
 
 
@@ -83,6 +82,9 @@ elif authentication_status == None:
         st.warning('Insira seu Email e Senha')
 else:
     authenticator.logout('Logout', 'sidebar')
+    
+    current_page = "BI Pagamentos" 
+    sideBar(current_page)
 
 
 

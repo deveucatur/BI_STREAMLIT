@@ -23,8 +23,7 @@ def sideBar(current_page):
       st.sidebar.page_link("pages/1 - BI Sindicancia.py")
     elif current_page == "Home":
         st.sidebar.write("🔒 Home")
-        st.sidebar.page_link("pages/1 - BI Sindicancia.py")
-        st.sidebar.page_link("pages/2 - BI Pagamentos.py")
+      
     
     
 def cabEscala(nome):
