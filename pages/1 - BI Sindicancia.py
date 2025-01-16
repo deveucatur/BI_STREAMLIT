@@ -44,7 +44,7 @@ local_css("style.css")
 
 
 
-menu_menu = "BI Sindicancia"
+menu_menu = "BI Sindicância"
 menu = cabEscala(menu_menu)
 
 
