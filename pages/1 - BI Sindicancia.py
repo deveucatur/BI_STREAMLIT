@@ -191,9 +191,10 @@ else:
                         return 'Grave'
                     elif gravidade.strip() == '':
                         return 'Não informado'
-                    
+                    elif 'outra' in gravidade:
+                        return 'Não informado'
                 return gravidade
-
+           
             df['gravidadeMaxima'] = df['gravidadeMaxima'].apply(ajustar_gravidade)
 
             def padronizar_suspensao(suspensao):
@@ -267,18 +268,18 @@ else:
                         return 'Atrasos Frequentes e Injustificados'
                     elif 'atrasosesporadicos' in irregularidade:
                         return 'Atrasos Esporádicos'
-                    elif 'indefinido_outra' in irregularidade:                   
+                    elif 'indefinido_outra' in irregularidade or 'outra' in irregularidade:                   
                         return 'Indefinido/Outra'
-                    elif irregularidade.strip() == '':
+                    elif irregularidade is None or irregularidade.strip() == '':
                         return 'Indefinido/Outra'
                 
                 # Retorna o valor original caso não haja correspondência
                 return irregularidade
                 
-            
+            df['tbIrregularidade___1'] = df['tbIrregularidade___1'].apply(lambda x: 'Indefinido/Outra' if x is None or str(x).strip() == '' else x)
             df['tbIrregularidade___1'] =  df['tbIrregularidade___1'].apply(padronizar_irregularidade)  
             df['mddCorretSelecionada'] =  df['mddCorretSelecionada'].apply(padronizar_suspensao)   
-            df = df.dropna(subset=['mddCorretSelecionada'])
+            #df = df.dropna(subset=['mddCorretSelecionada'])
             df['unidade'] = df['unidade'].apply(padronizar_unidade)
             
             # Traduzir e padronizar status e slaStatus
@@ -308,7 +309,7 @@ else:
                 (df['lead_time'] <= 5),
                 'slaStatus'
             ] = 'No Prazo'
-                
+          
             # 2. Filtros Interativos
             with st.expander("Filtros"):
                 
@@ -328,7 +329,7 @@ else:
                 with colsta2:    
                     sla_filter = multiselect_with_all("Status do SLA", df['slaStatus'].unique())
                 with colsta3:     
-                    gravidade_filter = multiselect_with_all("Gravidade", ['Leve', 'Moderada', 'Grave','Não informado'])
+                    gravidade_filter = multiselect_with_all("Gravidade", ['Leve', 'Moderada', 'Grave', 'Não informado'])
                 colsta4, colsta5 = st.columns(2)
                 with colsta4:
                     unidade_filter = multiselect_with_all("Unidade", df['unidade'].unique())
@@ -372,12 +373,9 @@ else:
                     (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date) )) |  # Valores nulos, mas dentro do intervalo
                     (df['endDate'] <= pd.Timestamp(end_date) )) &
                     (df['unidade'].isin(unidade_filter)) 
-              
+                    
             ]
-            df = df[(
-                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
-                (df['endDate'] <= pd.Timestamp(end_date)   # Valores não nulos dentro do intervalo
-                ))]
+            
 
             # Aplicar filtros
             filtered_df = df[
@@ -392,7 +390,11 @@ else:
                 #(df['nmInvestigado'].isin(investigado_filter)) &
                 (df['solicitante'].isin(solicitante_filter)) &
                 (df['startDate'] >= pd.Timestamp(start_date)) &
-                (df['unidade'].isin(unidade_filter)) 
+                (df['unidade'].isin(unidade_filter))&
+                ((
+                (df['endDate'].isna() & (df['startDate'] <= pd.Timestamp(end_date))) |  # Valores nulos, mas dentro do intervalo
+                (df['endDate'] <= pd.Timestamp(end_date)   # Valores não nulos dentro do intervalo
+                )))
             ]
 
             with st.expander("Metrics Geral"):
@@ -1309,6 +1311,7 @@ st.dataframe(tabela_sindicancias.style.format({
     'Data Fim': format_date,
     'Prejuízo Financeiro': 'R${:,.2f}'
 }))
+total =  len(tabela_sindicancias)
 
 # 7. Novo Painel para Visualização Detalhada de uma Sindicância
 
