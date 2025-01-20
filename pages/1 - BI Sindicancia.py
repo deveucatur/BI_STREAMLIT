@@ -93,7 +93,7 @@ else:
     sideBar(current_page)
  
         # Função para carregar dados da API
-    @st.cache_data(ttl=600)
+    
     def load_data_from_api():
         load_dotenv()
         # Credenciais OAuth (substitua pelas suas credenciais de forma segura)
@@ -1236,68 +1236,68 @@ else:
 # st.header("Painel de Investigados e Resultados")
 
 # Tabela com todos os principais dados das sindicâncias
-st.markdown("""
-            <div class="section-divider">
-                <span>Detalhamento de uma Sindicância Específica</span>
-            </div>
-            """,unsafe_allow_html=True)
-# Selecionar um processo específico
-processos_disponiveis = filtered_df['processInstanceId'].unique()
-processo_selecionado = st.selectbox("Selecione o ID do Processo", processos_disponiveis)
+    st.markdown("""
+                <div class="section-divider">
+                    <span>Detalhamento de uma Sindicância Específica</span>
+                </div>
+                """,unsafe_allow_html=True)
+    # Selecionar um processo específico
+    processos_disponiveis = filtered_df['processInstanceId'].unique()
+    processo_selecionado = st.selectbox("Selecione o ID do Processo", processos_disponiveis)
 
-# Obter os dados do processo selecionado
-dados_processo = filtered_df[filtered_df['processInstanceId'] == processo_selecionado].iloc[0]
+    # Obter os dados do processo selecionado
+    dados_processo = filtered_df[filtered_df['processInstanceId'] == processo_selecionado].iloc[0]
 
-# Exibir os dados de forma organizada
-st.markdown(f"### Dados do Processo {processo_selecionado}")
+    # Exibir os dados de forma organizada
+    st.markdown(f"### Dados do Processo {processo_selecionado}")
 
-st.markdown(f"""
-<div class="containerum">
-<div class="box">
-    <h3>Informações Gerais</h3>
-    <p><strong>Data Início:</strong> {dados_processo['startDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['startDate']) else 'N/A'}</p>
-    <p><strong>Data Fim:</strong> {dados_processo['endDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['endDate']) else 'N/A'}</p>
-    <p><strong>Lead Time:</strong> {dados_processo['lead_time']:.3f} dias</p>
-    <p><strong>Status:</strong> {dados_processo['status']}</p>
-    <p><strong>Status SLA:</strong> {dados_processo['slaStatus']}</p>
-    <p><strong>Unidade:</strong> {dados_processo['unidade']}</p>
-    <p><strong>Cidade:</strong> {dados_processo['cidadeFato']}</p>
-    <p><strong>Região:</strong> {dados_processo['regiaoUnidade']}</p>
-</div>
-<div class="box">
-    <h3>Detalhes do Caso</h3>
-    <p><strong>Irregularidade:</strong> {dados_processo['tbIrregularidade___1']}</p>
-    <p><strong>Gravidade:</strong> {dados_processo['gravidadeMaxima']}</p>
-    <p><strong>Investigado:</strong> {dados_processo['nmInvestigado']}</p>
-    <p><strong>Solicitante:</strong> {dados_processo['solicitante']}</p>
-    <p><strong>Prejuízo Financeiro:</strong> R${dados_processo['prejFinanc']:.2f} </p>
-    <p><strong>Descrição do Fato:</strong> {dados_processo['descFato']}</p>
-</div>
-</div>
-<div class="conclusao">
-<h4>Conclusão</h4>
-<p>{dados_processo['conclusao']}</p>
-</div>
-""", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="containerum">
+    <div class="box">
+        <h3>Informações Gerais</h3>
+        <p><strong>Data Início:</strong> {dados_processo['startDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['startDate']) else 'N/A'}</p>
+        <p><strong>Data Fim:</strong> {dados_processo['endDate'].strftime('%d/%m/%Y') if pd.notnull(dados_processo['endDate']) else 'N/A'}</p>
+        <p><strong>Lead Time:</strong> {dados_processo['lead_time']:.3f} dias</p>
+        <p><strong>Status:</strong> {dados_processo['status']}</p>
+        <p><strong>Status SLA:</strong> {dados_processo['slaStatus']}</p>
+        <p><strong>Unidade:</strong> {dados_processo['unidade']}</p>
+        <p><strong>Cidade:</strong> {dados_processo['cidadeFato']}</p>
+        <p><strong>Região:</strong> {dados_processo['regiaoUnidade']}</p>
+    </div>
+    <div class="box">
+        <h3>Detalhes do Caso</h3>
+        <p><strong>Irregularidade:</strong> {dados_processo['tbIrregularidade___1']}</p>
+        <p><strong>Gravidade:</strong> {dados_processo['gravidadeMaxima']}</p>
+        <p><strong>Investigado:</strong> {dados_processo['nmInvestigado']}</p>
+        <p><strong>Solicitante:</strong> {dados_processo['solicitante']}</p>
+        <p><strong>Prejuízo Financeiro:</strong> R${dados_processo['prejFinanc']:.2f} </p>
+        <p><strong>Descrição do Fato:</strong> {dados_processo['descFato']}</p>
+    </div>
+    </div>
+    <div class="conclusao">
+    <h4>Conclusão</h4>
+    <p>{dados_processo['conclusao']}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
-st.subheader("Detalhamento das Sindicâncias")
-# Selecionar colunas relevantes
-cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'cidadeFato', 'unidade', 'regiaoUnidade', 'tbIrregularidade___1', 'gravidadeMaxima', 'nmInvestigado', 'solicitante', 'conclusao', 'prejFinanc']
-tabela_sindicancias = filtered_df[cols_relevantes].copy()
-tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Lead Time', 'Status', 'Status SLA', 'Cidade', 'Unidade', 'Região', 'Irregularidade', 'Gravidade', 'Investigado', 'Solicitante', 'Conclusão', 'Prejuízo Financeiro']
+    st.subheader("Detalhamento das Sindicâncias")
+    # Selecionar colunas relevantes
+    cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'cidadeFato', 'unidade', 'regiaoUnidade', 'tbIrregularidade___1', 'gravidadeMaxima', 'nmInvestigado', 'solicitante', 'conclusao', 'prejFinanc']
+    tabela_sindicancias = filtered_df[cols_relevantes].copy()
+    tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Lead Time', 'Status', 'Status SLA', 'Cidade', 'Unidade', 'Região', 'Irregularidade', 'Gravidade', 'Investigado', 'Solicitante', 'Conclusão', 'Prejuízo Financeiro']
 
-# Definir função personalizada para formatar datas
-def format_date(x):
-    return x.strftime('%d/%m/%Y') if pd.notnull(x) else ''
+    # Definir função personalizada para formatar datas
+    def format_date(x):
+        return x.strftime('%d/%m/%Y') if pd.notnull(x) else ''
 
-# Exibir tabela com formatação
-st.dataframe(tabela_sindicancias.style.format({
-    'Data Início': format_date,
-    'Data Fim': format_date,
-    'Prejuízo Financeiro': 'R${:,.2f}'
-}))
-total =  len(tabela_sindicancias)
+    # Exibir tabela com formatação
+    st.dataframe(tabela_sindicancias.style.format({
+        'Data Início': format_date,
+        'Data Fim': format_date,
+        'Prejuízo Financeiro': 'R${:,.2f}'
+    }))
+    total =  len(tabela_sindicancias)
 
 # 7. Novo Painel para Visualização Detalhada de uma Sindicância
 
