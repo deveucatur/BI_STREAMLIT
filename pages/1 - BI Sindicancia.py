@@ -1017,15 +1017,162 @@ else:
             </body>r
             """
         components.html(html_content1, height=600)
+
+
+    st.markdown("""
+        <div class="section-divider">
+            <span>Lead Time</span>
+        </div>
+        """,unsafe_allow_html=True)
+    grafico_lead,space,tabela_lead = st.columns([2.7,0.2,2.3])
+    with grafico_lead:
+            average_lead_time = filtered_df.groupby('unidade', as_index=False)['lead_time'].mean()
+            average_lead_time = average_lead_time.sort_values(by='lead_time', ascending=True)
+
+            # Criar o gráfico de barras horizontal com Plotly Express
         
-    tabela_lead,space,tabela_medida= st.columns([2.3,0.2,2.7])
+            fig = px.bar(
+                average_lead_time,
+                x='lead_time',
+                y='unidade',
+                orientation='h',  # Barras horizontais
+                title='Média de Lead Time por Unidade (em dias)',
+                labels={'lead_time_days': 'Média de Lead Time (dias)', 'unidade': 'Unidade'},
+                text='lead_time',  # Exibe o valor nas barras
+                color='lead_time',  # Mapear cores ao valor de lead_time_days
+                color_continuous_scale=[[0, '#F29422'], [1, '#F24B4B']],
+            )
+
+            # Customizações
+            fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')  # Formatação do texto
+            fig.update_layout(
+                xaxis_title='Média de Lead Time (dias)',
+                yaxis_title='Unidade',
+                xaxis=dict(showgrid=True),
+                template='plotly_white' ,
+                height=500 # Estilo do gráfico
+            )
+
+            # Mostrar o gráfico
+            st.plotly_chart(fig, use_container_width=True)
+    with space:
+             st.write("")
+    with tabela_lead:     
+
+            ranking_lead_time = (filtered_df.groupby('unidade', as_index=False)['lead_time'].mean().rename(columns={'lead_time': 'media_time'}))
+            ranking_lead_time = (ranking_lead_time.sort_values(by='media_time', ascending=False).reset_index(drop=True))
+            
+            ranking_lead_time['ranking'] = ranking_lead_time.index + 1
+
+            html_content1 = f"""
+                <body>
+                <style>
+                {css_carregado}
+                </style>
+                    <div class="ranking-container">
+                        <div class="ranking-header">
+                            Ranking de Lead Time por Unidade (em dias)
+                        </div>
+                        <ul class="ranking-list">
+            """            
+            for  row in ranking_lead_time.itertuples():
+                html_content1 += f"""
+                    <li class="ranking-item">
+                        <span class="ranking-position">{row.ranking}º</span>
+                        <span class="city-name">{row.unidade}</span>
+                        <span class="case-count">{row.media_time:.1f} dias</span>
+                    </li> 
+                """
+            html_content1 += """
+                        </ul>
+                    </div>
+                </body>
+                """
+            components.html(html_content1, height=500)
+
+    grafico_lead1,space,tabela_lead1 = st.columns([3,0.2,2])
+
+    with grafico_lead1:
+
+        df_activities['lead_time'] =(((df_activities['endDate'].fillna(datetime.now()) - df_activities['startDate']).dt.total_seconds()/3600)/24).round(2) 
+        average_lead_time = df_activities.groupby('stateName', as_index=False)['lead_time'].mean()
+        average_lead_time = average_lead_time.sort_values(by='lead_time', ascending=True)
+
+        # Criar o gráfico de barras horizontal com Plotly Express
     
-    with tabela_medida:
-        st.markdown("""
+        fig = px.bar(
+            average_lead_time,
+            x='lead_time',
+            y='stateName',
+            orientation='h',  # Barras horizontais
+            title='Média de Lead Time por Tarefa (em dias)',
+            labels={'lead_time': 'Lead Time', 'Tarefa': 'Tarefa'},
+            text='lead_time',  # Exibe o valor nas barras
+            color='lead_time',  # Mapear cores ao valor de lead_time_days
+            color_continuous_scale=[[0, '#F29422'], [1, '#F24B4B']],
+        )
+
+        # Customizações
+        fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')  # Formatação do texto
+        fig.update_layout(
+            xaxis_title='Média de Lead Time',
+            yaxis_title='Tarefae',
+            xaxis=dict(showgrid=True),
+            template='plotly_white' ,
+            height=500 # Estilo do gráfico
+        )
+
+        # Mostrar o gráfico
+        st.plotly_chart(fig, use_container_width=True)
+    with space:
+         st.write("")    
+    with tabela_lead1:  
+            st.markdown("")
+            st.markdown("")
+            st.markdown("")
+            st.markdown("")
+            ranking_lead_time = (df_activities.groupby('stateName', as_index=False)['lead_time'].mean().rename(columns={'lead_time': 'media_time'}))
+            ranking_lead_time = (ranking_lead_time.sort_values(by='media_time', ascending=False).reset_index(drop=True))
+            
+            ranking_lead_time['ranking'] = ranking_lead_time.index + 1
+
+            html_content1 = f"""
+                <body>
+                <style>
+                {css_carregado}
+                </style>
+                    <div class="ranking-container">
+                        <div class="ranking-header">
+                            Ranking de Lead Time por Tarefa (em dias)
+                        </div>
+                        <ul class="ranking-list">
+            """            
+            for  row in ranking_lead_time.itertuples():
+                html_content1 += f"""
+                    <li class="ranking-item">
+                        <span class="ranking-position">{row.ranking}º</span>
+                        <span class="city-name">{row.stateName}</span>
+                        <span class="case-count">{row.media_time:.1f} dias</span>
+                    </li> 
+                """
+            html_content1 += """
+                        </ul>
+                    </div>
+                </body>
+                """
+            components.html(html_content1, height=500)
+              
+
+
+    st.markdown("""
         <div class="section-divider">
             <span>Medidas Corretivas</span>
         </div>
         """,unsafe_allow_html=True)
+    tabela_medida,space,grafico_medida= st.columns([2.3,0.2,2.7])
+
+    with grafico_medida:
+       
         ############################### GRAFICO MEDIDA #####################################
         grouped_data = filtered_df.groupby(['unidade', 'mddCorretSelecionada']).size().reset_index(name='Total')
         custom_greys = ['#F22771', '#05AFF2', '#2BD957', '#F29422', '#F24B4B','#A316F5']
@@ -1034,7 +1181,7 @@ else:
             grouped_data,
             x='unidade',
             y='Total',
-            title='Medidas corretivas por Unidade',
+         
             color='mddCorretSelecionada',
             labels={'unidade': 'Unidade', 'Total': 'Total de Medidas', 'mddCorretSelecionada': 'Tipo de Medida'},
             text_auto=True,
@@ -1048,9 +1195,14 @@ else:
 
         # Exibir gráfico no Streamlit
         st.plotly_chart(fig, use_container_width=True)
-
+    with space:
+        st.write("") 
         ############################### TABELA  MEDIDA #####################################
-
+    with tabela_medida:
+        st.markdown("")
+        st.markdown("")
+        st.markdown("")
+        st.markdown("")
         ranking_medidas = (filtered_df.groupby('mddCorretSelecionada')['gravidadeMaxima'].size().reset_index(name='total_medidas'))
         ranking_medidas = ranking_medidas.sort_values(by='total_medidas', ascending=False).reset_index(drop=True)
         ranking_medidas['ranking'] = ranking_medidas.index + 1
@@ -1080,74 +1232,11 @@ else:
             </body>
             """
         components.html(html_content1, height=390)
-    with space:
-        st.write("")    
+     
 
-    with tabela_lead:
-        st.markdown("""
-        <div class="section-divider">
-            <span>Lead Time</span>
-        </div>
-        """,unsafe_allow_html=True)
-        average_lead_time = filtered_df.groupby('unidade', as_index=False)['lead_time'].mean()
-        average_lead_time = average_lead_time.sort_values(by='lead_time', ascending=True)
-
-        # Criar o gráfico de barras horizontal com Plotly Express
     
-        fig = px.bar(
-            average_lead_time,
-            x='lead_time',
-            y='unidade',
-            orientation='h',  # Barras horizontais
-            title='Média de Lead Time por Unidade (em dias)',
-            labels={'lead_time_days': 'Média de Lead Time (dias)', 'unidade': 'Unidade'},
-            text='lead_time',  # Exibe o valor nas barras
-            color='lead_time',  # Mapear cores ao valor de lead_time_days
-            color_continuous_scale=[[0, '#F29422'], [1, '#F24B4B']],
-        )
 
-        # Customizações
-        fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')  # Formatação do texto
-        fig.update_layout(
-            xaxis_title='Média de Lead Time (dias)',
-            yaxis_title='Unidade',
-            xaxis=dict(showgrid=True),
-            template='plotly_white' ,
-            height=500 # Estilo do gráfico
-        )
 
-        # Mostrar o gráfico
-        st.plotly_chart(fig, use_container_width=True)
-        ranking_lead_time = (filtered_df.groupby('unidade', as_index=False)['lead_time'].mean().rename(columns={'lead_time': 'media_time'}))
-        ranking_lead_time = (ranking_lead_time.sort_values(by='media_time', ascending=False).reset_index(drop=True))
-        
-        ranking_lead_time['ranking'] = ranking_lead_time.index + 1
-
-        html_content1 = f"""
-            <body>
-            <style>
-            {css_carregado}
-            </style>
-                <div class="ranking-container">
-                    <div class="ranking-header">
-                        Ranking de Lead Time por Unidade (em dias)
-                    </div>
-                    <ul class="ranking-list">
-        """            
-        for  row in ranking_lead_time.itertuples():
-            html_content1 += f"""
-                <li class="ranking-item">
-                    <span class="ranking-position">{row.ranking}º</span>
-                    <span class="city-name">{row.unidade}</span>
-                    <span class="case-count">{row.media_time:.1f} dias</span>
-                </li> 
-            """
-        html_content1 += """
-                    </ul>
-                </div>
-            </body>
-            """
-        components.html(html_content1, height=500)
                             
 # with tabRegioes:
 #     col1, col2 = st.columns(2)
@@ -1278,6 +1367,12 @@ else:
 # # 6. Painel de Investigados e Resultados
 # st.markdown("---")
 # st.header("Painel de Investigados e Resultados")
+
+
+
+
+
+
 
 # Tabela com todos os principais dados das sindicâncias
     st.markdown("""
