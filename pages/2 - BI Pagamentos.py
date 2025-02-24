@@ -47,7 +47,7 @@ menu = cabEscala1(menu_menu)
 
 names = ['Victor Silva','Lucas','Lauro','André','Luana']
 usernames = ['pedrotivictor712@gmail.com','controller.eucatur@gmail.com','lauro.processos.eucatur@gmail.com','andre.unep@gmail.com','contasapagar.eucatur4@gmail.com']
-hashed_passwords = ['admin','admin','admin','admin','admin123']
+hashed_passwords = ['admin','admin','admin','admin','admin']
 
 def convert_to_dict(names, usernames, passwords):
     credentials = {"usernames": {}}
@@ -570,6 +570,7 @@ else:
         'Data Fim': format_date,
         'Prejuízo Financeiro': 'R${:,.2f}'
     }))
+
    
             
             
