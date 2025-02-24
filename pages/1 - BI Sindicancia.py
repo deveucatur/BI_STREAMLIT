@@ -1014,7 +1014,7 @@ else:
         html_content1 += """
                     </ul>
                 </div>
-            </body>r
+            </body>
             """
         components.html(html_content1, height=600)
 

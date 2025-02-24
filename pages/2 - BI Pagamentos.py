@@ -115,7 +115,7 @@ else:
             "status": ["OPEN", "FINALIZED"],
             "processId": "ARF-SolicitaçãodePagamentoAntecipado",
             "page": 1,
-            "pageSize": 1000,
+            "pageSize": 10000,
             "expand": "formFields"
         }
 
