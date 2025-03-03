@@ -141,7 +141,7 @@
 }
 
 [data-testid="stSidebarCollapsedControl"] {
-    z-index: 99999999999;
+    /* z-index: 99999999999; */
     height: 30px;
     width: 9px;
     top: 0;
