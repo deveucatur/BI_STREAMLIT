@@ -29,8 +29,8 @@ def carregar_css(file_name):
         return f.read()        
 
 # Aplicar o CSS personalizado
-css_carregado = carregar_css("style.css")
-local_css("style.css")
+css_carregado = carregar_css("styleCadValor.css")
+local_css("styleCadValor.css")
 
 def cabEscala(nome):
     st.markdown(f""" 
