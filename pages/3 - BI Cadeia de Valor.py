@@ -7,6 +7,7 @@ from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
 import os
 import json
+import streamlit_authenticator as stauth
 
 # --------------------------------------------------
 # CONFIGURAÇÕES DO STREAMLIT
