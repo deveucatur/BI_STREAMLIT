@@ -14,7 +14,8 @@ import json
 st.set_page_config(
     page_title="BI Cadeia de Valor",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
+    page_icon=f"https://raw.githubusercontent.com/deveucatur/BI_STREAMLIT/refs/heads/main/src/Design%20sem%20nome%20(2).png"
 )
 
 def title(text):
