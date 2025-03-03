@@ -12,7 +12,7 @@ import json
 # CONFIGURAÇÕES DO STREAMLIT
 # --------------------------------------------------
 st.set_page_config(
-    page_title="BI - Gestão de Ativos - Visão Geral",
+    page_title="BI Cadeia de valor",
     layout="wide",
     initial_sidebar_state="collapsed"
 )

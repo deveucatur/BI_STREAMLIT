@@ -20,6 +20,9 @@ def sideBar(current_page):
       
     elif current_page == "BI Sindicância":
       st.sidebar.page_link("Home.py")
+
+    elif current_page == "BI Cadeia de valor":
+        st.sidebar.page_link("pages/3 - BI Cadeia de Valor.py")
       
     elif current_page == "Home":
         st.sidebar.write("🔒 Home")
