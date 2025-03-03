@@ -4,6 +4,9 @@ import plotly.express as px
 import numpy as np
 import gspread
 from google.oauth2.service_account import Credentials
+from dotenv import load_dotenv
+import os
+import json
 
 # --------------------------------------------------
 # CONFIGURAÇÕES DO STREAMLIT
@@ -52,12 +55,13 @@ cabEscala(menu_menu)
 # -------------------------
 # 1) Carregar dados
 # -------------------------
+load_dotenv()
 def get_sheet_data():
-    CREDENTIALS_FILE = 'onyx-sphere-363812-91b4ab2915ce.json'
-    SHEET_ID = '1N7ux92Yj3vs5_Cl0hghLplBGdHV4A2y2AP9kWN0jU7I'
-    SHEET_NAME = 'Cadeia de Valor'
+    credentials_info = json.loads(os.getenv('GOOGLE_CREDENTIALS'))
+    SHEET_ID = os.getenv('SHEET_ID')
+    SHEET_NAME = os.getenv('SHEET_NAME')
     scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-    credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scope)
+    credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
     client = gspread.authorize(credentials)
     sheet = client.open_by_key(SHEET_ID).worksheet(SHEET_NAME)
     
