@@ -556,9 +556,9 @@ else:
                 """,unsafe_allow_html=True)
   
     # Selecionar colunas relevantes
-    cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'lead_time', 'status', 'slaStatus', 'unidadeSolicitante', 'tpPagamento', 'empresaPagamento', 'departamentoSolicitante',  'nomeSolicitante','funcaoSolicitante', 'observacao']
+    cols_relevantes = ['processInstanceId', 'startDate', 'endDate', 'natureza','codFornecedor','vencimento' ,'numTitulo' ,'numPedido','nomeRazaoSocial','nomeFantasia','cpfCnpj','status', 'slaStatus', 'unidadeSolicitante', 'tpPagamento', 'empresaPagamento','departamentoSolicitante','lead_time',  'nomeSolicitante','funcaoSolicitante', 'observacao']
     tabela_sindicancias = filtered_df[cols_relevantes].copy()
-    tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Lead Time', 'Status', 'Status SLA', 'Unidade', 'Tipo de Pagamento', 'Empresa de Pagamento', 'Departamento Solicitante', 'Nome do Solicitante', 'Função do Solicitante', 'Observação']
+    tabela_sindicancias.columns = ['ID Processo', 'Data Início', 'Data Fim', 'Natureza' , 'Código do Fornecedor','Vencimento','Numero do Titulo','Número do Pedido','Nome/Razão Social','Nome Fantasia','CPF/CNPJ','Status', 'Status SLA', 'Unidade', 'Tipo de Pagamento', 'Empresa de Pagamento' ,'Departamento Solicitante','Lead Time', 'Nome do Solicitante', 'Função do Solicitante', 'Observação']
 
     # Definir função personalizada para formatar datas
     def format_date(x):
