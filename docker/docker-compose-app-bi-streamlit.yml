@@ -5,5 +5,5 @@ services:
       context: ./docker-file-bi-streamlit:wq
     image: bi-streamlit:latest
     ports:
-      - 8505:8505
+      - 8506:8506
     restart: always

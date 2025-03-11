@@ -41,7 +41,7 @@ col1, col2,col3 = st.columns([1,3,1])
 with col2:
     name, authentication_status, username = authenticator.login(
         location='main', fields={
-            'Form name':'ACESSAR BINTELLIGENCE',
+            'Form name':'ACESSAR',
             'Username':'Login', 
             'Password':'Senha', 
             'Login':'Entrar'
