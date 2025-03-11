@@ -17,8 +17,8 @@ RUN git clone https://<<token>>git@github.com:deveucatur/BI_STREAMLIT.git .
 
 RUN pip3 install -r requirements.txt
 
-EXPOSE 8505
+EXPOSE 8506
 
-HEALTHCHECK CMD curl --fail http://localhost:8503/_stcore/health
+HEALTHCHECK CMD curl --fail http://localhost:8506/_stcore/health
 
-ENTRYPOINT ["streamlit", "run", "Cadastro.py", "--server.port=8505", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "Home.py", "--server.port=8506", "--server.address=0.0.0.0"]
