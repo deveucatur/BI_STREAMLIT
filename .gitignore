@@ -5,6 +5,6 @@ Scripts/
 etc/
 share/
 pyvenv.cfg
-.env
+.env 
 venv
 .history
