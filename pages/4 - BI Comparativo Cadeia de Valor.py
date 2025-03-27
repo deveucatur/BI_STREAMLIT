@@ -89,13 +89,13 @@ def gerar_metricas_gerais(df: pd.DataFrame) -> pd.DataFrame:
 # 4) Treemap
 # ------------------------------------------------------------------------------
 def treemap_cadeia(df: pd.DataFrame, titulo: str):
-    grouped = df.groupby(['Processo','Procedimento','Atividade'])['Tarefa'].count().reset_index()
-    grouped.rename(columns={'Tarefa': 'Qtd_Tarefas'}, inplace=True)
+    grouped = df.groupby(['Processo','Procedimento'])['Atividade'].count().reset_index()
+    grouped.rename(columns={'Atividade': 'Qtd_Atividade'}, inplace=True)
 
     fig = px.treemap(
         grouped,
-        path=['Processo','Procedimento','Atividade'],
-        values='Qtd_Tarefas',
+        path=['Processo','Procedimento'],
+        values='Qtd_Atividade',
         title=titulo
     )
     # Reduz margens (diminuir espaçamento)
