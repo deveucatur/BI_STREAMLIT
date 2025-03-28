@@ -58,7 +58,6 @@ def carregar_tres_planilhas(
     df_arq['Versao'] = 'Arquitetura'
 
     df_final = pd.concat([df_anter, df_nova, df_arq], ignore_index=True)
-    st.write(df_final)
     return df_final
 
 # ------------------------------------------------------------------------------
