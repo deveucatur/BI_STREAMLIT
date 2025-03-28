@@ -34,28 +34,30 @@ def cabEscala(nome):
     </div>
 """.format(nome), unsafe_allow_html=True)
 
-# -------------------------------
 # Exemplo de uso no aplicativo
-# -------------------------------
 menu_menu = "BI Comparativo - Cadeia de Valor"
 cabEscala(menu_menu)
 
-
 # ------------------------------------------------------------------------------
-# 1) Ler duas abas do Excel e concatenar (Anterior / Nova)
+# 1) Ler as TRÊS abas do Excel e concatenar ("Anterior", "Nova", "Arquitetura")
 # ------------------------------------------------------------------------------
-def carregar_duas_planilhas(
+def carregar_tres_planilhas(
     arquivo: str = "Cadeia de Valor_Operar.xlsx",
     sheet_anterior: str = "Cadeia de Valor_Anterior",
-    sheet_nova: str = "Cadeia de Valor_Nova"
+    sheet_nova: str = "Cadeia de Valor_Nova",
+    sheet_arq: str = "Cadeia de Valor_Arquitetura"
 ) -> pd.DataFrame:
+    """Lê 3 sheets do Excel e concatena, adicionando uma coluna 'Versao'."""
     df_anter = pd.read_excel(arquivo, sheet_name=sheet_anterior)
     df_anter['Versao'] = 'Anterior'
 
     df_nova = pd.read_excel(arquivo, sheet_name=sheet_nova)
     df_nova['Versao'] = 'Nova'
 
-    df_final = pd.concat([df_anter, df_nova], ignore_index=True)
+    df_arq = pd.read_excel(arquivo, sheet_name=sheet_arq)
+    df_arq['Versao'] = 'Arquitetura'
+
+    df_final = pd.concat([df_anter, df_nova, df_arq], ignore_index=True)
     return df_final
 
 # ------------------------------------------------------------------------------
@@ -66,7 +68,7 @@ def preparar_dados(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 # ------------------------------------------------------------------------------
-# 3) Gera métricas (contagem de Processos, Procedimentos, etc.) por Versão
+# 3) Gera métricas (contagem de Processos, Procedimentos, Atividades, Tarefas) por Versão
 # ------------------------------------------------------------------------------
 def gerar_metricas_gerais(df: pd.DataFrame) -> pd.DataFrame:
     resumo = df.groupby('Versao').agg({
@@ -89,6 +91,10 @@ def gerar_metricas_gerais(df: pd.DataFrame) -> pd.DataFrame:
 # 4) Treemap
 # ------------------------------------------------------------------------------
 def treemap_cadeia(df: pd.DataFrame, titulo: str):
+    """
+    Usa colunas ['Processo', 'Procedimento'] e conta Atividades (Qtd_Atividade).
+    Ajuste se desejar outra hierarquia.
+    """
     grouped = df.groupby(['Processo','Procedimento'])['Atividade'].count().reset_index()
     grouped.rename(columns={'Atividade': 'Qtd_Atividade'}, inplace=True)
 
@@ -98,20 +104,23 @@ def treemap_cadeia(df: pd.DataFrame, titulo: str):
         values='Qtd_Atividade',
         title=titulo
     )
-    # Reduz margens (diminuir espaçamento)
-    fig.update_layout(margin=dict(l=10, r=10, t=40, b=10))
+    fig.update_layout(margin=dict(l=10, r=10, t=40, b=10))  # reduzir margens
     return fig
 
 # ------------------------------------------------------------------------------
-# 5) Gráfico de barras comparando Anterior vs Nova
-#    * Com cor vermelha para 'Anterior' e azul para 'Nova'
+# 5) Gráfico de barras comparando as versões (cor vermelha, azul, verde etc.)
 # ------------------------------------------------------------------------------
 def grafico_comparacao_metricas(df_metricas: pd.DataFrame, coluna: str, titulo: str):
     """
-    Cria um bar chart comparando a coluna (ex: 'Qtd_Processos')
-    entre 'Anterior' e 'Nova', exibindo os valores dentro das barras.
-    Usamos 'color_discrete_map' para forçar 'Anterior' = 'red', 'Nova' = 'blue'.
+    Compara a coluna (ex: 'Qtd_Processos') entre as versões selecionadas.
+    color_discrete_map define cores para 'Anterior', 'Nova', 'Arquitetura'.
     """
+    color_map = {
+        "Anterior": "red",
+        "Nova": "blue",
+        "Arquitetura": "green"
+    }
+
     fig = px.bar(
         df_metricas,
         x='Versao',
@@ -121,11 +130,9 @@ def grafico_comparacao_metricas(df_metricas: pd.DataFrame, coluna: str, titulo: 
         text=coluna,
         title=titulo,
         labels={'Versao': 'Versão', coluna: 'Quantidade'},
-        color_discrete_map={"Anterior": "red", "Nova": "blue"}
+        color_discrete_map=color_map
     )
-    # Colocar valores dentro das barras
     fig.update_traces(textposition='inside')
-    # Remover/Reduzir margens
     fig.update_layout(
         uniformtext_minsize=8,
         uniformtext_mode='hide',
@@ -135,23 +142,33 @@ def grafico_comparacao_metricas(df_metricas: pd.DataFrame, coluna: str, titulo: 
     return fig
 
 # ------------------------------------------------------------------------------
-# 6) Análise Comparativa (Mantido, Removido, Novo)
+# 6) Análise Comparativa (Mantido, Removido, Novo) - para exatamente 2 versões
 # ------------------------------------------------------------------------------
 def gerar_analise_comparativa(df: pd.DataFrame):
     """
     Gera uma comparação de quais 'componentes' (Processos, Procedimentos,
     Atividades, Tarefas) foram mantidos, removidos ou novos.
+
+    Funciona APENAS para 2 versões no DataFrame (faz sets e intersec/diff).
     """
+    # Verificar se há exatamente 2 versões
+    versions_unique = df['Versao'].unique()
+    if len(versions_unique) != 2:
+        # Se for 1 ou 3 versões, não é compatível com a lógica de difference/intersection
+        return pd.DataFrame(columns=['Componente','Mantidos','Removidos','Novos'])
+
+    v1, v2 = versions_unique[0], versions_unique[1]
+
     resultados = []
     colunas = ['Processo','Procedimento','Atividade','Tarefa']
 
     for coluna in colunas:
-        set_anter = set(df.loc[df['Versao'] == 'Anterior', coluna].dropna())
-        set_nova = set(df.loc[df['Versao'] == 'Nova', coluna].dropna())
+        set_v1 = set(df.loc[df['Versao'] == v1, coluna].dropna())
+        set_v2 = set(df.loc[df['Versao'] == v2, coluna].dropna())
 
-        mantidos = set_anter.intersection(set_nova)
-        removidos = set_anter.difference(set_nova)
-        novos = set_nova.difference(set_anter)
+        mantidos = set_v1.intersection(set_v2)
+        removidos = set_v1.difference(set_v2)   # só no v1
+        novos = set_v2.difference(set_v1)       # só no v2
 
         resultados.append({
             'Componente': coluna,
@@ -163,25 +180,32 @@ def gerar_analise_comparativa(df: pd.DataFrame):
     df_comp = pd.DataFrame(resultados)
     return df_comp
 
+# ------------------------------------------------------------------------------
+# 7) Gap Analysis (lista de cada item e status) - para 2 versões
+# ------------------------------------------------------------------------------
 def gerar_gap_analysis(df: pd.DataFrame) -> pd.DataFrame:
     """
     Retorna uma tabela (Gap Analysis) listando cada item (por coluna)
-    e seu status (Mantido, Removido, Novo).
+    e seu status (Mantido, Removido, Novo), também somente para 2 versões.
     """
+    versions_unique = df['Versao'].unique()
+    if len(versions_unique) != 2:
+        return pd.DataFrame(columns=['Componente','Valor','Status'])
+
+    v1, v2 = versions_unique[0], versions_unique[1]
+
     registros = []
     colunas = ['Processo','Procedimento','Atividade','Tarefa']
 
     for coluna in colunas:
-        set_anter = set(df.loc[df['Versao'] == 'Anterior', coluna].dropna())
-        set_nova = set(df.loc[df['Versao'] == 'Nova', coluna].dropna())
-
-        # Gera uma lista unificada
-        todos_valores = set_anter.union(set_nova)
+        set_v1 = set(df.loc[df['Versao'] == v1, coluna].dropna())
+        set_v2 = set(df.loc[df['Versao'] == v2, coluna].dropna())
+        todos_valores = set_v1.union(set_v2)
 
         for val in todos_valores:
-            if val in set_anter and val in set_nova:
+            if val in set_v1 and val in set_v2:
                 status = "Mantido"
-            elif val in set_anter and val not in set_nova:
+            elif val in set_v1 and val not in set_v2:
                 status = "Removido"
             else:
                 status = "Novo"
@@ -196,12 +220,12 @@ def gerar_gap_analysis(df: pd.DataFrame) -> pd.DataFrame:
     return gap_df
 
 # ------------------------------------------------------------------------------
-# 7) CSS para os KPIs individualizados
+# 8) CSS para os KPIs individualizados
 # ------------------------------------------------------------------------------
 KPI_CSS = """
 <style>
 .kpi-card {
-  background-color: #F2F2F2; /* fundo padrão (cinza claro) */
+  background-color: #F2F2F2;
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 10px;
@@ -222,21 +246,20 @@ KPI_CSS = """
   color: #000;
 }
 
-/* Cores diferentes para a versão Anterior e Nova */
+/* Cores diferentes para a versão Anterior, Nova e Arquitetura */
 .ANTERIOR { background-color: #EC7063 !important; color: #fff !important; }
 .NOVA { background-color: #5DADE2 !important; color: #fff !important; }
-
+.ARQUITETURA { background-color: #58D68D !important; color: #fff !important; }
 </style>
 """
 
 # ------------------------------------------------------------------------------
-# 8) Gera gráfico de colunas para cada componente na Análise Comparativa
+# 9) Gera gráfico de colunas para cada componente na Análise Comparativa
 # ------------------------------------------------------------------------------
 def gerar_barra_componente(df_comparativo, componente):
     """
-    Recebe df_comparativo (Componente, Mantidos, Removidos, Novos)
-    e uma string 'Processo' ou 'Procedimento' etc.
-    Retorna um Plotly bar chart com cores específicas (Mantidos=Azul, Removidos=Vermelho, Novos=Verde).
+    Gera bar chart (Mantidos=Azul, Removidos=Vermelho, Novos=Verde) para
+    o componente (Processo/Procedimento/Atividade/Tarefa).
     """
     row = df_comparativo[df_comparativo["Componente"] == componente]
     if row.empty:
@@ -278,206 +301,161 @@ def gerar_barra_componente(df_comparativo, componente):
 # MAIN
 # ------------------------------------------------------------------------------
 def main():
-
-    # Injetar CSS customizado (KPIs)
+    # Carregar CSS customizado (KPIs)
     st.markdown(KPI_CSS, unsafe_allow_html=True)
 
-    # 1) Carregar / Preparar
-    df = carregar_duas_planilhas()
+    # 1) Ler as 3 planilhas (Anterior, Nova, Arquitetura)
+    df_all = carregar_tres_planilhas()
+
+    # 2) Selecionar quais 2 versões serão comparadas
+    versoes_disponiveis = ["Anterior", "Nova", "Arquitetura"]
+    escolha = st.multiselect("Selecione **2 versões** para comparar:", versoes_disponiveis, default=["Anterior","Nova"])
+
+    # Verificar quantidade selecionada
+    if len(escolha) < 2:
+        st.warning("Por favor, selecione 2 versões para comparação.")
+        st.stop()
+    elif len(escolha) > 2:
+        st.warning("Selecione apenas 2 versões para comparação.")
+        st.stop()
+
+    # Filtrar DF para apenas as 2 versões escolhidas
+    df = df_all[df_all["Versao"].isin(escolha)].copy()
+
+    # 3) Preparar dados
     df = preparar_dados(df)
 
-    # 2) Métricas
+    # 4) Gerar métricas
     metricas = gerar_metricas_gerais(df)
 
-    # ---- METRICAS - ANTERIOR ----
-    st.subheader("Métricas - Versão Anterior")
-    row_anter = metricas[metricas['Versao'] == 'Anterior']
-    if not row_anter.empty:
-        r = row_anter.iloc[0]
-        num_processos_anter    = r['Qtd_Processos']
-        num_procedimentos_anter= r['Qtd_Procedimentos']
-        num_atividades_anter   = r['Qtd_Atividades']
-        num_tarefas_anter      = r['Qtd_Tarefas']
+    # ---- Exibir MÉTRICAS: loop para cada versão selecionada ----
+    for versao_escolhida in escolha:
+        st.subheader(f"Métricas - Versão {versao_escolhida}")
 
-        colA1, colA2, colA3, colA4 = st.columns(4)
-        with colA1:
-            st.markdown(f"""
-            <div class="kpi-card ANTERIOR">
-              <div class="kpi-card-title">Nº de Processos</div>
-              <div class="kpi-card-value">{num_processos_anter}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        row_versao = metricas[metricas["Versao"] == versao_escolhida]
+        if row_versao.empty:
+            st.write(f"Não há dados para a versão {versao_escolhida}.")
+        else:
+            r = row_versao.iloc[0]
+            num_proc  = r['Qtd_Processos']
+            num_procD = r['Qtd_Procedimentos']
+            num_ativ  = r['Qtd_Atividades']
+            num_taref = r['Qtd_Tarefas']
 
-        with colA2:
-            st.markdown(f"""
-            <div class="kpi-card ANTERIOR">
-              <div class="kpi-card-title">Nº de Procedimentos</div>
-              <div class="kpi-card-value">{num_procedimentos_anter}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            # Montamos 4 colunas com 4 cards
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.markdown(f"""
+                <div class="kpi-card {versao_escolhida.upper()}">
+                  <div class="kpi-card-title">Nº de Processos</div>
+                  <div class="kpi-card-value">{num_proc}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with col2:
+                st.markdown(f"""
+                <div class="kpi-card {versao_escolhida.upper()}">
+                  <div class="kpi-card-title">Nº de Procedimentos</div>
+                  <div class="kpi-card-value">{num_procD}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with col3:
+                st.markdown(f"""
+                <div class="kpi-card {versao_escolhida.upper()}">
+                  <div class="kpi-card-title">Nº de Atividades</div>
+                  <div class="kpi-card-value">{num_ativ}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with col4:
+                st.markdown(f"""
+                <div class="kpi-card {versao_escolhida.upper()}">
+                  <div class="kpi-card-title">Nº de Tarefas</div>
+                  <div class="kpi-card-value">{num_taref}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-        with colA3:
-            st.markdown(f"""
-            <div class="kpi-card ANTERIOR">
-              <div class="kpi-card-title">Nº de Atividades</div>
-              <div class="kpi-card-value">{num_atividades_anter}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with colA4:
-            st.markdown(f"""
-            <div class="kpi-card ANTERIOR">
-              <div class="kpi-card-title">Nº de Tarefas</div>
-              <div class="kpi-card-value">{num_tarefas_anter}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.write("Não há dados para a versão Anterior.")
-
-    # ---- METRICAS - NOVA ----
-    st.subheader("Métricas - Versão Nova")
-    row_nova = metricas[metricas['Versao'] == 'Nova']
-    if not row_nova.empty:
-        r = row_nova.iloc[0]
-        num_processos_nova    = r['Qtd_Processos']
-        num_procedimentos_nova= r['Qtd_Procedimentos']
-        num_atividades_nova   = r['Qtd_Atividades']
-        num_tarefas_nova      = r['Qtd_Tarefas']
-
-        colN1, colN2, colN3, colN4 = st.columns(4)
-        with colN1:
-            st.markdown(f"""
-            <div class="kpi-card NOVA">
-              <div class="kpi-card-title">Nº de Processos</div>
-              <div class="kpi-card-value">{num_processos_nova}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with colN2:
-            st.markdown(f"""
-            <div class="kpi-card NOVA">
-              <div class="kpi-card-title">Nº de Procedimentos</div>
-              <div class="kpi-card-value">{num_procedimentos_nova}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with colN3:
-            st.markdown(f"""
-            <div class="kpi-card NOVA">
-              <div class="kpi-card-title">Nº de Atividades</div>
-              <div class="kpi-card-value">{num_atividades_nova}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with colN4:
-            st.markdown(f"""
-            <div class="kpi-card NOVA">
-              <div class="kpi-card-title">Nº de Tarefas</div>
-              <div class="kpi-card-value">{num_tarefas_nova}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.write("Não há dados para a versão Nova.")
-
-    # 3) Gráficos comparativos (4 gráficos lado a lado)
-    st.subheader("Comparação de Quantidades (Anterior vs Nova)")
+    # 5) Comparação de Quantidades
+    st.subheader("Comparação de Quantidades entre as Versões Selecionadas")
+    # Gráficos de barras (Processos, Procedimentos, Atividades, Tarefas)
     fig_proc = grafico_comparacao_metricas(metricas, 'Qtd_Processos', 'Processos')
     fig_proced = grafico_comparacao_metricas(metricas, 'Qtd_Procedimentos', 'Procedimentos')
     fig_ativ = grafico_comparacao_metricas(metricas, 'Qtd_Atividades', 'Atividades')
-    fig_tarefa = grafico_comparacao_metricas(metricas, 'Qtd_Tarefas', 'Tarefas')
+    fig_tarefas = grafico_comparacao_metricas(metricas, 'Qtd_Tarefas', 'Tarefas')
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.plotly_chart(fig_proc, use_container_width=True)
-    col2.plotly_chart(fig_proced, use_container_width=True)
-    col3.plotly_chart(fig_ativ, use_container_width=True)
-    col4.plotly_chart(fig_tarefa, use_container_width=True)
+    cproc, cproc2, cproc3, cproc4 = st.columns(4)
+    cproc.plotly_chart(fig_proc, use_container_width=True)
+    cproc2.plotly_chart(fig_proced, use_container_width=True)
+    cproc3.plotly_chart(fig_ativ, use_container_width=True)
+    cproc4.plotly_chart(fig_tarefas, use_container_width=True)
 
-    # 4) Treemaps
-    st.subheader("Treemap - Cadeia de Valor")
-    df_anter = df[df['Versao'] == 'Anterior']
-    df_nova = df[df['Versao'] == 'Nova']
+    # 6) Treemaps
+    st.subheader("Treemap - Cadeia de Valor (para as versões selecionadas)")
+    # Dividir DF para cada versão selecionada
+    for versao_escolhida in escolha:
+        df_temp = df[df["Versao"] == versao_escolhida]
+        if df_temp.empty:
+            st.write(f"Não há dados para a versão {versao_escolhida}.")
+        else:
+            fig_tmap = treemap_cadeia(df_temp, f"Treemap - Versão {versao_escolhida}")
+            st.plotly_chart(fig_tmap, use_container_width=True)
 
-    if not df_anter.empty:
-        fig_treemap_anter = treemap_cadeia(df_anter, "Treemap - Versão Anterior")
-        st.plotly_chart(fig_treemap_anter, use_container_width=True)
-    else:
-        st.write("Não há dados para a versão Anterior.")
+    # 7) Análise Comparativa (mantidos, removidos, novos)
+    st.subheader("Análise Comparativa (Mantidos, Removidos, Novos)")
 
-    if not df_nova.empty:
-        fig_treemap_nova = treemap_cadeia(df_nova, "Treemap - Versão Nova")
-        st.plotly_chart(fig_treemap_nova, use_container_width=True)
-    else:
-        st.write("Não há dados para a versão Nova.")
-
-    # 5) Análise Comparativa (mantidos, removidos, novos - contagem)
-    st.subheader("Análise Comparativa")
+    # Se a função for aplicada em 2 versões, ela funciona. Caso contrário, retorna DF vazio
     df_comparativo = gerar_analise_comparativa(df)
-    # Exibe a tabela de contagem
-    #st.dataframe(df_comparativo)
+    if df_comparativo.empty:
+        st.warning("Análise Comparativa só funciona com 2 versões. Selecione 2 versões para comparar.")
+    else:
+        st.markdown("**Gráficos de Coluna por Componente:** Mantidos (Azul), Removidos (Vermelho), Novos (Verde)")
+        # 4 gráficos
+        col_comp1, col_comp2, col_comp3, col_comp4 = st.columns(4)
+        with col_comp1:
+            figp = gerar_barra_componente(df_comparativo, "Processo")
+            if figp: st.plotly_chart(figp, use_container_width=True)
+        with col_comp2:
+            figp = gerar_barra_componente(df_comparativo, "Procedimento")
+            if figp: st.plotly_chart(figp, use_container_width=True)
+        with col_comp3:
+            figp = gerar_barra_componente(df_comparativo, "Atividade")
+            if figp: st.plotly_chart(figp, use_container_width=True)
+        with col_comp4:
+            figp = gerar_barra_componente(df_comparativo, "Tarefa")
+            if figp: st.plotly_chart(figp, use_container_width=True)
 
-    # ---- 4 gráficos de barras (Processo, Procedimento, Atividade, Tarefa) ----
-    st.markdown("**Gráficos de Coluna por Componente:** Mantidos (Azul), Removidos (Vermelho), Novos (Verde)")
-
-    # 4 colunas para 4 componentes
-    comp_col1, comp_col2, comp_col3, comp_col4 = st.columns(4)
-
-    with comp_col1:
-        fig_proc_comp = gerar_barra_componente(df_comparativo, "Processo")
-        if fig_proc_comp:
-            st.plotly_chart(fig_proc_comp, use_container_width=True)
-    with comp_col2:
-        fig_proced_comp = gerar_barra_componente(df_comparativo, "Procedimento")
-        if fig_proced_comp:
-            st.plotly_chart(fig_proced_comp, use_container_width=True)
-    with comp_col3:
-        fig_ativ_comp = gerar_barra_componente(df_comparativo, "Atividade")
-        if fig_ativ_comp:
-            st.plotly_chart(fig_ativ_comp, use_container_width=True)
-    with comp_col4:
-        fig_tarefa_comp = gerar_barra_componente(df_comparativo, "Tarefa")
-        if fig_tarefa_comp:
-            st.plotly_chart(fig_tarefa_comp, use_container_width=True)
-
-    # 6) Tabela de Gap Analysis fragmentada em 4 tabelas, lado a lado
-    st.subheader("Gap Analysis")
-    df_gap = gerar_gap_analysis(df)
-
-    # Filtrar 4 DataFrames diferentes
-    df_gap_processo = df_gap[df_gap['Componente'] == 'Processo']
-    df_gap_procedimento = df_gap[df_gap['Componente'] == 'Procedimento']
-    df_gap_atividade = df_gap[df_gap['Componente'] == 'Atividade']
-    df_gap_tarefa = df_gap[df_gap['Componente'] == 'Tarefa']
-
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown("**Processo**")
-        st.dataframe(df_gap_processo)
-    with c2:
-        st.markdown("**Procedimento**")
-        st.dataframe(df_gap_procedimento)
-    with c3:
-        st.markdown("**Atividade**")
-        st.dataframe(df_gap_atividade)
-    with c4:
-        st.markdown("**Tarefa**")
-        st.dataframe(df_gap_tarefa)
-
-    # 7) Ao final, exibe as duas tabelas (Anterior, Nova) lado a lado
-    st.subheader("Cadeia de Valor Completa (Anterior e Nova)")
-    colTab1, colTab2 = st.columns(2)
-    with colTab1:
-        st.markdown("**Tabela - Anterior**")
-        if not df_anter.empty:
-            st.dataframe(df_anter)
+        # Gap Analysis
+        df_gap = gerar_gap_analysis(df)
+        if df_gap.empty:
+            st.warning("Gap Analysis também requer 2 versões exatas.")
         else:
-            st.write("Sem dados para a versão Anterior.")
-    with colTab2:
-        st.markdown("**Tabela - Nova**")
-        if not df_nova.empty:
-            st.dataframe(df_nova)
-        else:
-            st.write("Sem dados para a versão Nova.")
+            st.subheader("Gap Analysis (por Componente)")
+            df_gap_processo = df_gap[df_gap['Componente'] == 'Processo']
+            df_gap_procedimento = df_gap[df_gap['Componente'] == 'Procedimento']
+            df_gap_atividade = df_gap[df_gap['Componente'] == 'Atividade']
+            df_gap_tarefa = df_gap[df_gap['Componente'] == 'Tarefa']
 
+            gap_col1, gap_col2, gap_col3, gap_col4 = st.columns(4)
+            with gap_col1:
+                st.markdown("**Processo**")
+                st.dataframe(df_gap_processo)
+            with gap_col2:
+                st.markdown("**Procedimento**")
+                st.dataframe(df_gap_procedimento)
+            with gap_col3:
+                st.markdown("**Atividade**")
+                st.dataframe(df_gap_atividade)
+            with gap_col4:
+                st.markdown("**Tarefa**")
+                st.dataframe(df_gap_tarefa)
+
+    # 8) Tabelas Finais
+    st.subheader("Tabelas de Cada Versão Selecionada")
+    for versao_escolhida in escolha:
+        df_temp = df[df["Versao"] == versao_escolhida]
+        st.markdown(f"**Versão: {versao_escolhida}**")
+        if df_temp.empty:
+            st.write(f"Sem dados para {versao_escolhida}.")
+        else:
+            st.dataframe(df_temp)
 
 if __name__ == "__main__":
     main()
