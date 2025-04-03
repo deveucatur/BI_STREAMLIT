@@ -51,9 +51,9 @@ menu = cabEscala(menu_menu)
 
 
 
-names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros', 'Juliano.Marca','Vanessa']
-usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com','juliano.marca','performance4.eucatur@gmail.com']
-hashed_passwords = ['admin','admin','admin','admin','admin']
+names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros', 'Juliano.Marca','Vanessa','Gabriel Lopes Lima']
+usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com','juliano.marca','performance4.eucatur@gmail.com','Gabriel.Lopes']
+hashed_passwords = ['admin','admin','admin','admin','admin','admin']
 
 def convert_to_dict(names, usernames, passwords):
     credentials = {"usernames": {}}
