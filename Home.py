@@ -12,9 +12,9 @@ from util import cabEscala, sideBar
 current_page = "Home" 
 sideBar(current_page)
 
-names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros', 'Gabriel Lopes Lima']
-usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com','Gabriel.Lopes']
-hashed_passwords = ['admin','admin','admin','admin']
+names = ['Victor Silva','Cleidimara Sander','Bruna Paio de Medeiros']
+usernames = ['pedrotivictor712@gmail.com','cleidi.sander@gmail.com' ,'performance.eucatur@gmail.com']
+hashed_passwords = ['admin','admin','admin']
 
 def convert_to_dict(names, usernames, passwords):
     credentials = {"usernames": {}}
